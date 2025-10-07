@@ -1,91 +1,142 @@
 //
 //  AuthViewModel.swift
-//  SocialNetwork
+//  Dare
 //
-//  Created by Sergey Leschev on 23/12/22.
+//  Created by Bram Heetkamp on 29/10/24.
 //
 
+import Combine
 import SwiftUI
-import Firebase
+import FirebaseAuth
+import FirebaseFirestore
+
+extension AuthViewModel {
+    var currentUser: Dare.User? {
+        if case let .authenticated(appUser) = authState {
+            return appUser
+        }
+        return nil
+    }
+}
 
 class AuthViewModel: ObservableObject {
-    @Published var userSession: FirebaseAuth.User?
-    @Published var didAuthenticateUser = false
-    @Published var currentUser: User?
-    private var tempUserSession: FirebaseAuth.User?
+    
+    enum AuthState: Equatable {
+        case loading
+        case authenticated(Dare.User)
+        case unauthenticated
+    }
+    
+    @Published var authState: AuthState = .loading
+    private var authStateHandler: AuthStateDidChangeListenerHandle?
     
     private let service = UserService()
     
+    // MARK: - Lifecycle
+    
     init() {
-        self.userSession = Auth.auth().currentUser
-        self.fetchUser()
+        setupAuthListener()
     }
     
-    //MARK: - Login
-    func login(withEmail email: String, password: String) {
-        Auth.auth().signIn(withEmail: email, password: password) { result, error in
+    deinit {
+        print("AuthViewModel has been deinitialized")
+    }
+    
+    // MARK: - Authentication (Login/Register)
+    
+    func login(withEmail email: String, password: String, onFailure: ((String) -> Void)? = nil) {
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
             if let error = error {
-                print("DEBUG: Failed to register with error \(error.localizedDescription)")
+                onFailure?(error.localizedDescription)
+                print("DEBUG: Failed to login with error \(error.localizedDescription)")
                 return
             }
-            
-            guard let user = result?.user else { return }
-            self.userSession = user
-            self.fetchUser()
-            print("DEBUG: Did Log user in.. \(String(describing: self.userSession?.email))")
+
+            guard let self = self else { return }
+            guard let uid = result?.user.uid else { return }
+            self.service.fetchUser(withUid: uid) { appUser in
+                DispatchQueue.main.async {
+                    if let appUser {
+                        self.authState = .authenticated(appUser)
+                    } else {
+                        self.authState = .unauthenticated
+                    }
+                }
+            }
+
+            print("DEBUG: User logged in successfully")
         }
     }
     
-        //MARK: - Register
     func register(withEmail email: String, password: String, fullname: String, username: String) {
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             if let error = error {
                 print("DEBUG: Failed to register with error \(error.localizedDescription)")
                 return
             }
             
-            guard let user = result?.user else { return }
-            self.tempUserSession = user
-              
-            let userData = ["email": email,
-                            "username": username.lowercased(),
-                            "fullname": fullname,
-                            "uid": user.uid]
+            guard let self = self else { return }
+            guard let authUser = result?.user else { return }
+            let userData: [String: Any] = [
+                "email": email,
+                "username": username.lowercased(),
+                "fullname": fullname,
+                "uid": authUser.uid,
+                // Ensure this exists to satisfy Dare.User Decodable requirements
+                "timestamp": Timestamp(date: Date())
+            ]
             
             Firestore.firestore().collection("users")
-                .document(user.uid)
+                .document(authUser.uid)
                 .setData(userData) { _ in
-                    print("DEBUG: Did upload user data.")
-                    self.didAuthenticateUser = true
+                    self.service.fetchUser(withUid: authUser.uid) { appUser in
+                        DispatchQueue.main.async {
+                            if let appUser {
+                                self.authState = .authenticated(appUser)
+                            } else {
+                                self.authState = .unauthenticated
+                            }
+                        }
+                    }
                 }
         }
     }
     
-        //MARK: - Logout
-    func logout() {
-        didAuthenticateUser = false
-        userSession = nil
-        try? Auth.auth().signOut()
-    }
+    // MARK: - User Management
     
     func uploadProfileImage(_ image: UIImage) {
-        guard let uid = tempUserSession?.uid else { return }
+        guard let uid = currentUser?.id else { return }
         
         ImageUploader.uploadImage(image: image) { profileImageUrl in
             Firestore.firestore().collection("users")
                 .document(uid)
                 .updateData(["profileImageUrl": profileImageUrl]) { _ in
-                    self.userSession = self.tempUserSession
-                    self.fetchUser()
+                    print("DEBUG: Updated profile image URL")
                 }
         }
     }
     
-    func fetchUser() {
-        guard let uid = self.userSession?.uid else { return }
-        
-        service.fetchUser(withUid: uid) { user in
-            self.currentUser = user
+    // MARK: - Logout
+    
+    private func setupAuthListener() {
+        authStateHandler = Auth.auth().addStateDidChangeListener { [weak self] _, authUser in
+            guard let self else { return }
+            
+            if let authUser = authUser {
+                service.fetchUser(withUid: authUser.uid) { appUser in
+                    DispatchQueue.main.async {
+                        if let appUser {
+                            self.authState = .authenticated(appUser)
+                        } else {
+                            self.authState = .unauthenticated
+                        }
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.authState = .unauthenticated
+                }
+            }
         }
     }
 }

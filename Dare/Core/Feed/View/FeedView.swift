@@ -1,56 +1,19 @@
-//
-//  FeedView.swift
-//  SocialNetwork
-//
-//  Created by Sergey Leschev on 21/12/22.
-//
-
 import SwiftUI
+import FirebaseAuth
 
-struct FeedView: View {
-    @State private var showNewPostView = false
-    @ObservedObject var viewModel = FeedViewModel()
-    
-    var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            ScrollView {
-                LazyVStack {
-                    ForEach(viewModel.posts) { post in
-                        PostRowView(post: post)
-                            .padding()
-                    }
-                }
-            } 
-            
-            Button {
-                print("New post")
-                showNewPostView.toggle()
-            } label: {
-                Image("newPost")
-                    .resizable()
-                    .renderingMode(.template)
-                    .frame(width: 28, height: 28)
-                    .padding()
-            }
-            .background(Color.themeColor)
-            .foregroundColor(.white)
-            .clipShape(Circle())
-            .padding()
-            .padding(.trailing, 10)
-            .padding(.bottom, 20)
-            .fullScreenCover(isPresented: $showNewPostView, onDismiss: {
-                viewModel.fetchPosts()
-            }) {
-               NewPostView()
-            }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-       
-    }
+enum FeedFilter: String, CaseIterable {
+    case all = "All"
+    case friends = "Friends"
 }
 
-struct FeedView_Previews: PreviewProvider {
-    static var previews: some View {
-        FeedView()
+struct FeedView: View {
+    
+    // MARK: - Properties
+    
+    @EnvironmentObject private var postsStore: PostsStore
+    @State private var selectedFilter: FeedFilter = .all
+
+    var body: some View {
+        FeedListView(postsStore: postsStore, selectedFilter: $selectedFilter)
     }
 }

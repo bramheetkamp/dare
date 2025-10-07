@@ -1,8 +1,8 @@
 //
 //  ProfilePhotoSelectorView.swift
-//  SocialNetwork
+//  Dare
 //
-//  Created by Sergey Leschev on 23/12/22.
+//  Created by Bram Heetkamp on 29/10/24.
 //
 
 import SwiftUI
@@ -15,7 +15,7 @@ struct ProfilePhotoSelectorView: View {
     
     var body: some View {
         VStack {
-            AuthHeaderView(title1: "Setup account", title2: "Add a profile photo")
+            AuthHeaderView(title1: "Setup account,", title2: "add a profile photo")
             
             Button {
                 print("Pick image here..")
@@ -28,7 +28,7 @@ struct ProfilePhotoSelectorView: View {
                     Image("addProfile")
                         .resizable()
                         .renderingMode(.template)
-                        .foregroundColor(Color.themeColor)
+                        .foregroundColor(Color("primaryButton"))
                         
                 }
             }.sheet(isPresented: $showImagePicker, onDismiss: loadImage) {
@@ -38,14 +38,14 @@ struct ProfilePhotoSelectorView: View {
             
             if let selectedImage = selectedImage {
                 Button {
-                    print("DEBUD: Finish registering user..")
+                    print("DEBUG: Finish registering user..")
                     viewModel.uploadProfileImage(selectedImage)
                 } label: {
                     Text("Continue")
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(width: 340, height: 50)
-                        .background(Color.themeColor)
+                        .background(Color("primaryButton"))
                         .clipShape(Capsule())
                         .padding()
                 }
@@ -71,7 +71,7 @@ private struct ProfileImageModifier: ViewModifier {
             .frame(width: 180, height: 180)
             .overlay(
                 RoundedRectangle(cornerRadius: 90)
-                    .stroke(Color.themeColor, lineWidth: 10)
+                    .stroke(Color("primaryButton"), lineWidth: 10)
             )
             .clipShape(Circle())
             .padding(.top, 44)

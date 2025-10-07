@@ -27,6 +27,7 @@ struct CustomImagePicker: UIViewControllerRepresentable {
             if let uiImage = info[.originalImage] as? UIImage {
                 parent.selectedImage = uiImage
             }
+            
             parent.isImagePickerPresented = false
         }
     }

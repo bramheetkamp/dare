@@ -9,11 +9,15 @@ import SwiftUI
 
 struct HeaderLabelView: View {
     var text: String
+    var size: Font = .title
+    var fontWeight: Font.Weight = .black
+    var alignment: Alignment = .leading
     
     var body: some View {
         Text(text)
-            .font(.title)
+            .font(size)
             .foregroundColor(Color("headerText"))
-            .fontWeight(.black)
+            .fontWeight(fontWeight)
+            .frame(maxWidth: .infinity, alignment: alignment)
     }
 }

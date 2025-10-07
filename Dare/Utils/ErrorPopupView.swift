@@ -34,13 +34,13 @@ struct ErrorPopupView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity, minHeight: 44)
                         .background(Color.red)
-                        .cornerRadius(10)
+                        .cornerRadius(Style.CornerRadius.small)
                         .padding()
                 }
             }
             .padding()
             .background(Color.white)
-            .cornerRadius(20)
+            .cornerRadius(Style.CornerRadius.small)
             .shadow(radius: 10)
             .frame(maxWidth: 300)
         }

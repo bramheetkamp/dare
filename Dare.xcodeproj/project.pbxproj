@@ -3,8 +3,21 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
+
+/* Begin PBXBuildFile section */
+		79B20CE52D426A420069FFAD /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CE42D426A420069FFAD /* Kingfisher */; };
+		79B20CE82D426A870069FFAD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CE72D426A870069FFAD /* FirebaseAnalytics */; };
+		79B20CEA2D426A870069FFAD /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CE92D426A870069FFAD /* FirebaseAnalyticsOnDeviceConversion */; };
+		79B20CEC2D426A870069FFAD /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CEB2D426A870069FFAD /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		79B20CEE2D426A870069FFAD /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CED2D426A870069FFAD /* FirebaseAppCheck */; };
+		79B20CF02D426A870069FFAD /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CEF2D426A870069FFAD /* FirebaseAppDistribution-Beta */; };
+		79B20CF22D426C290069FFAD /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CF12D426C290069FFAD /* FirebaseAuth */; };
+		79B20CF42D426C400069FFAD /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CF32D426C400069FFAD /* FirebaseCore */; };
+		79B20CF62D426C400069FFAD /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CF52D426C400069FFAD /* FirebaseFirestore */; };
+		79B20CF82D426C540069FFAD /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CF72D426C540069FFAD /* FirebaseStorage */; };
+/* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		7989A6BB2CD1648300DFC039 /* PBXContainerItemProxy */ = {
@@ -27,24 +40,23 @@
 		7989A6AA2CD1648200DFC039 /* Dare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7989A6BA2CD1648300DFC039 /* DareTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DareTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7989A6C42CD1648300DFC039 /* DareUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DareUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7989AA782CD17BB200DFC039 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		79B13F832E8D67880091DC75 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 7989A6A92CD1648200DFC039 /* Dare */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7989A6AC2CD1648200DFC039 /* Dare */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Dare;
-			sourceTree = "<group>";
-		};
-		7989A6BD2CD1648300DFC039 /* DareTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DareTests;
-			sourceTree = "<group>";
-		};
-		7989A6C72CD1648300DFC039 /* DareUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DareUITests;
-			sourceTree = "<group>";
-		};
+		7989A6AC2CD1648200DFC039 /* Dare */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (79B13F832E8D67880091DC75 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Dare; sourceTree = "<group>"; };
+		7989A6BD2CD1648300DFC039 /* DareTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = DareTests; sourceTree = "<group>"; };
+		7989A6C72CD1648300DFC039 /* DareUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = DareUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +64,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79B20CE82D426A870069FFAD /* FirebaseAnalytics in Frameworks */,
+				79B20CEA2D426A870069FFAD /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
+				79B20CE52D426A420069FFAD /* Kingfisher in Frameworks */,
+				79B20CF82D426C540069FFAD /* FirebaseStorage in Frameworks */,
+				79B20CEE2D426A870069FFAD /* FirebaseAppCheck in Frameworks */,
+				79B20CEC2D426A870069FFAD /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
+				79B20CF62D426C400069FFAD /* FirebaseFirestore in Frameworks */,
+				79B20CF22D426C290069FFAD /* FirebaseAuth in Frameworks */,
+				79B20CF42D426C400069FFAD /* FirebaseCore in Frameworks */,
+				79B20CF02D426A870069FFAD /* FirebaseAppDistribution-Beta in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +94,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		04817924077161143B47888B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7989AA782CD17BB200DFC039 /* libc++.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		7989A6A12CD1648200DFC039 = {
 			isa = PBXGroup;
 			children = (
@@ -79,6 +109,7 @@
 				7989A6BD2CD1648300DFC039 /* DareTests */,
 				7989A6C72CD1648300DFC039 /* DareUITests */,
 				7989A6AB2CD1648200DFC039 /* Products */,
+				04817924077161143B47888B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -111,8 +142,6 @@
 				7989A6AC2CD1648200DFC039 /* Dare */,
 			);
 			name = Dare;
-			packageProductDependencies = (
-			);
 			productName = Dare;
 			productReference = 7989A6AA2CD1648200DFC039 /* Dare.app */;
 			productType = "com.apple.product-type.application";
@@ -134,8 +163,6 @@
 				7989A6BD2CD1648300DFC039 /* DareTests */,
 			);
 			name = DareTests;
-			packageProductDependencies = (
-			);
 			productName = DareTests;
 			productReference = 7989A6BA2CD1648300DFC039 /* DareTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -157,8 +184,6 @@
 				7989A6C72CD1648300DFC039 /* DareUITests */,
 			);
 			name = DareUITests;
-			packageProductDependencies = (
-			);
 			productName = DareUITests;
 			productReference = 7989A6C42CD1648300DFC039 /* DareUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -187,6 +212,7 @@
 				};
 			};
 			buildConfigurationList = 7989A6A52CD1648200DFC039 /* Build configuration list for PBXProject "Dare" */;
+			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -195,7 +221,10 @@
 			);
 			mainGroup = 7989A6A12CD1648200DFC039;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
+			packageReferences = (
+				79B20CE32D426A420069FFAD /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = 7989A6AB2CD1648200DFC039 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -321,6 +350,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Dare/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -378,6 +408,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Dare/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -391,26 +422,36 @@
 		7989A6CF2CD1648300DFC039 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					"x86_64-apple-ios-simulator",
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Dare/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Y3JWNKXB7;
 				ENABLE_PREVIEWS = YES;
+				EXCLUDED_ARCHS = "x86_64-ios-simulator x86_64";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Dare/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moroentertainment.dare.Dare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -420,26 +461,36 @@
 		7989A6D02CD1648300DFC039 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					"x86_64-apple-ios-simulator",
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Dare/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Y3JWNKXB7;
 				ENABLE_PREVIEWS = YES;
+				EXCLUDED_ARCHS = "x86_64-ios-simulator x86_64";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Dare/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.moroentertainment.dare.Dare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -558,6 +609,78 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		79B20CE32D426A420069FFAD /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.1.3;
+			};
+		};
+		79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.7.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		79B20CE42D426A420069FFAD /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE32D426A420069FFAD /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		79B20CE72D426A870069FFAD /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		79B20CE92D426A870069FFAD /* FirebaseAnalyticsOnDeviceConversion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsOnDeviceConversion;
+		};
+		79B20CEB2D426A870069FFAD /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		79B20CED2D426A870069FFAD /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		79B20CEF2D426A870069FFAD /* FirebaseAppDistribution-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseAppDistribution-Beta";
+		};
+		79B20CF12D426C290069FFAD /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		79B20CF32D426C400069FFAD /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		79B20CF52D426C400069FFAD /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		79B20CF72D426C540069FFAD /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 79B20CE62D426A870069FFAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7989A6A22CD1648200DFC039 /* Project object */;
 }

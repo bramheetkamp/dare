@@ -1,86 +1,89 @@
+//
+//  CommentsView.swift
+//  Dare
+//
+//  Created by Bram Heetkamp on 29/10/24.
+//
+
 import SwiftUI
 
 struct CommentsView: View {
-    @ObservedObject var viewModel: CommentsViewModel
-    let post: Post
     
-    init(post: Post) {
-        self.viewModel = CommentsViewModel(post: post)
-        self.post = post
+    // MARK: - Properties
+    
+    let postId: String
+    @StateObject private var viewModel: CommentsViewModel
+    @State private var isFirstLoad = true
+    
+    // MARK: - Initializer
+    
+    init(postId: String) {
+        self.postId = postId
+        _viewModel = StateObject(wrappedValue: CommentsViewModel(postId: postId))
     }
+    
+    // MARK: - Body
     
     var body: some View {
-        VStack {
-            // Display existing comments
-            List(viewModel.comments) { comment in
-                VStack(alignment: .leading) {
-                    Text(comment.user?.fullname ?? "-")
-                        .font(.headline)
-                        .foregroundColor(Color("headerText"))
-                    Text(comment.text)
-                        .font(.subheadline)
-                        .foregroundColor(Color("bodyText"))
-                    Text(timeAgoSinceDate(comment.createdAt))
-                        .font(.caption)
-                        .foregroundColor(.gray)
+        ZStack(alignment: .bottom) {
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    contentView
                 }
-                .background(Color("background"))
-                .padding(.vertical, 8)
+                .padding(.bottom, 80)
+                .padding(.horizontal, 16)
             }
+            .refreshable { refreshComments() }
+            .onAppear(perform: loadInitialData)
             
-            HStack {
-                TextField("Add a comment...", text: $viewModel.newCommentText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
-                
-                Button(action: {
-                    viewModel.addComment(text: viewModel.newCommentText)
-                }) {
-                    Image(systemName: "paperplane.fill")
-                        .font(.headline)
-                        .padding(.trailing)
-                        .foregroundColor(Color("primaryButton"))
-                }
-                .disabled(viewModel.newCommentText.isEmpty)
-            }
-            .padding(.top)
+            AddCommentView(viewModel: viewModel)
         }
-        .navigationTitle("Comments")
-        .navigationBarTitleDisplayMode(.inline)
-        .ignoresSafeArea()
-        .customBackButton()
-        .padding()
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color("dareGreen"), Color("dareBlue")]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .edgesIgnoringSafeArea(.all)
-        )
+        .withStandardPageStyle(title: "Comments", extendView: false)
     }
     
+    // MARK: - Private Views
     
-    func timeAgoSinceDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        
-        let currentDate = Date()
-        let interval = currentDate.timeIntervalSince(date)
-        
-        let minutes = Int(interval / 60)
-        let hours = minutes / 60
-        let days = hours / 24
-        
-        if days > 0 {
-            return "\(days) days ago"
-        } else if hours > 0 {
-            return "\(hours) hours ago"
-        } else if minutes > 0 {
-            return "\(minutes) minutes ago"
+    @ViewBuilder
+    private var contentView: some View {
+        if viewModel.isLoading && viewModel.comments.isEmpty {
+            LoadingIndicatorView()
+        } else if viewModel.comments.isEmpty {
+            EmptyArrayMessageView(message: "No comments yet. Be the first to comment!")
         } else {
-            return "Just now"
+            PostCommentsView(
+                comments: viewModel.comments,
+                onCommentAppear: loadMoreCommentsIfNeeded
+            )
+        }
+        
+        if viewModel.isLoading && !viewModel.comments.isEmpty {
+            LoadingIndicatorView()
+        }
+    }
+    
+    // MARK: - Private Helpers
+    
+    private func loadMoreCommentsIfNeeded(for comment: Comment) {
+        guard comment.id == viewModel.comments.last?.id,
+              viewModel.hasMoreComments,
+              !viewModel.isLoading,
+              !viewModel.comments.isEmpty
+        else { return }
+        
+        viewModel.fetchComments()
+    }
+    
+    private func refreshComments() {
+        withAnimation {
+            viewModel.resetPagination()
+            viewModel.fetchComments()
+        }
+    }
+    
+    private func loadInitialData() {
+        if isFirstLoad {
+            viewModel.fetchComments()
+            isFirstLoad = false
         }
     }
 }

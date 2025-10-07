@@ -1,5 +1,5 @@
 //
-//  FeedRowButtonsView.swift
+//  PostRowButtonsView.swift
 //  Dare
 //
 //  Created by Bram Heetkamp on 27/01/2025.
@@ -7,45 +7,106 @@
 
 import SwiftUI
 
-struct FeedRowButtonsView: View {
-    @ObservedObject var viewModel: PublicPostRowViewModel
+struct PostRowButtonsView: View {
+    
+    @EnvironmentObject private var router: AppRouter
+    @EnvironmentObject private var postsStore: PostsStore
+    
+    @State private var isLikeAnimating = false
+    
+    private let postId: String
+    var post: PublicPost? {
+        postsStore.post(withId: postId)
+    }
+    
+    init(postId: String) {
+        self.postId = postId
+    }
 
     var body: some View {
-        HStack {
-            Button {
-                viewModel.publicPost.didLike ?? false ? viewModel.unlikePost() : viewModel.likePost()
-            } label: {
+        HStack(spacing: 4) {
+            // Likes
+            InteractiveButtonStack(
+                action: { handleLike() },
+                cornerRadius: 36 / 2,
+            ) {
                 HStack(spacing: 8) {
-                    Image(systemName: viewModel.publicPost.didLike ?? false ? "heart.fill" : "heart")
-                        .font(.headline) // Larger icon
-                        .foregroundColor(viewModel.publicPost.didLike ?? false ? .red : .gray)
+                    ZStack {
+                        Circle()
+                            .fill((post?.didLike ?? false) ?
+                                  Color("primaryButton") : Color.gray.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        Text("👏")
+                            .font(.title2)
+                            .scaleEffect(isLikeAnimating ? 1.3 : 1.0)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0.2),
+                                     value: isLikeAnimating)
+                    }
+                    .contentShape(Circle())
 
-                    Text("\(viewModel.publicPost.likes)")
+                    Text("\(post?.likes ?? 0)")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color("detailText"))
+                        .frame(minWidth: 30, alignment: .leading)
                 }
-                .frame(minWidth: 44, minHeight: 44)
-                .padding(8)
-                .cornerRadius(8)
             }
-            .buttonStyle(.plain)
+
+            // Comments
+            InteractiveButtonStack(
+                action: {
+                    guard let postId = post?.id else { return }
+                    router.navigate(to: .comments(postId: postId))
+                },
+                cornerRadius: 36 / 2,
+            ) {
+                HStack(spacing: 8) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        Text("💬")
+                            .font(.title2)
+                    }
+                    .contentShape(Circle())
+                }
+            }
 
             Spacer()
-            
-            NavigationLink(destination: CommentsView(publicPost: viewModel.publicPost)) {
-                HStack(spacing: 8) {
-                    Image(systemName: "bubble.left")
-                        .font(.headline)
 
-                    Text("Comment")
+            // See more
+            InteractiveButtonStack(
+                action: {
+                    guard let postId = post?.id else { return }
+                    router.navigate(to: .postDetail(postId: postId))
+                },
+                cornerRadius: Style.CornerRadius.small,
+                backgroundColor: Color("primaryButton").opacity(0.1)
+            ) {
+                HStack(spacing: 6) {
+                    Text("See more")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .fontWeight(.medium)
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
                 }
-                .frame(minWidth: 44, minHeight: 44)
-                .padding(8)
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
+                .foregroundColor(Color("primaryButton"))
+            }
+        }
+        .padding(.horizontal, 12)
+    }
+
+    private func handleLike() {
+        guard !isLikeAnimating, (post?.didLike ?? false) == false else { return }
+
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+            isLikeAnimating = true
+        }
+        
+        postsStore.likePost(postId: postId) {
+            DispatchQueue.main.async {
+                isLikeAnimating = false
             }
         }
     }
+
 }

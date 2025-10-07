@@ -1,14 +1,25 @@
 //
 //  MainTabView.swift
-//  SocialNetwork
+//  Dare
 //
-//  Created by Sergey Leschev on 21/12/22.
+//  Created by Bram Heetkamp on 29/10/24.
 //
 
 import SwiftUI
 
 struct MainTabView: View {
-    @State private var selectedIndex = 0
+    @Binding var selectedIndex: Int
+    @EnvironmentObject var authViewModel: AuthViewModel
+
+    init(selectedIndex: Binding<Int>) {
+        _selectedIndex = selectedIndex
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithOpaqueBackground()
+        tabBarAppearance.backgroundColor = UIColor(Color("background"))
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        UITabBar.appearance().barTintColor = UIColor(Color("background"))
+    }
     
     var body: some View {
         TabView(selection: $selectedIndex) {
@@ -28,28 +39,16 @@ struct MainTabView: View {
                     Image(systemName: "magnifyingglass")
                 }.tag(1)
             
-            NotificationsView()
-                .onTapGesture {
-                    self.selectedIndex = 2
-                }
-                .tabItem {
-                    Image(systemName: "bell")
-                }.tag(2)
-            
-            MessagesView()
-                .onTapGesture {
-                    self.selectedIndex = 3
-                }
-                .tabItem {
-                    Image(systemName: "envelope")
-                }.tag(3)
-                
-        } 
-    }
-}
-
-struct MainTabView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainTabView()
+            if let userId = authViewModel.currentUser?.id {
+                ProfileView(userId: userId)
+                    .onTapGesture {
+                        self.selectedIndex = 2
+                    }
+                    .tabItem {
+                        Image(systemName: "person.fill")
+                    }.tag(2)
+            }
+        }
+        .accentColor(Color("primaryButton"))
     }
 }

@@ -1,177 +1,125 @@
 //
 //  ProfileView.swift
-//  SocialNetwork
+//  Dare
 //
-//  Created by Sergey Leschev on 21/12/22.
+//  Created by Bram Heetkamp on 29/10/24.
 //
 
 import SwiftUI
 import Kingfisher
 
-struct ProfileView: View {
-    @State private var selectedFiler: PostFilterViewModel = .posts
-    @ObservedObject var viewModel: ProfileViewModel
-    @Environment(\.presentationMode) var mode
-    @Namespace var animation
-    
-    init(user: User) {
-        self.viewModel = ProfileViewModel(user: user)
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            headerView
-            
-            actionButtons
-            
-            userInfoDetails
-    
-            postFilterBar
-    
-            postsView
-            
-            Spacer()
-        }
-        .navigationBarHidden(true)
-    }
+enum ProfileFilter: String, CaseIterable {
+    case posts = "Posts"
+    case challenges = "Challenges"
 }
 
-struct ProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileView(user: User(id: NSUUID().uuidString,
-                               username: "sergeydeveloper",
-                               fullname: "Sergey Developer",
-                               profileImageUrl: "",
-                               email: "sergey.developer@gmail.com"))
-    }
-}
-
-extension ProfileView {
+public struct ProfileView: View {
+    let userId: String
+    @StateObject var viewModel: ProfileViewModel
+    @State private var selectedFilter: ProfileFilter = .posts
+    @State private var isFirstLoadPosts = true
+    @State private var isFirstLoadChallenges = true
+    @State private var currentPlayerID: String? = nil
     
-    var headerView: some View {
-        ZStack(alignment: .bottomLeading) {
-            Color.themeColor
-                .ignoresSafeArea()
-            
-            VStack {
-                Button {
-                    mode.wrappedValue.dismiss()
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundColor(.white)
-                        .offset(x: 5, y: 5)
-                }
-                
-                KFImage(URL(string: viewModel.user.avatarUrl))
-                    .resizable()
-                    .scaledToFill()
-                    .clipShape(Circle())
-                    .frame(width: 72, height: 72)
-                    .offset(x: 16, y: 24)
-            }
-        }
-        .frame(height: 96)
+    init(userId: String) {
+        self.userId = userId
+        _viewModel = StateObject(wrappedValue: ProfileViewModel(userId: userId))
     }
     
-    var actionButtons: some View {
-        HStack(spacing: 12) {
-            Spacer()
-            
-            Image(systemName: "bell.badge")
-                .font(.title3)
-                .padding(6)
-                .overlay(Circle().stroke(Color.gray, lineWidth: 0.75))
-        
-            Button {
-                //
-            } label: {
-                Text(viewModel.actionButtonTitle)
-                    .font(.subheadline).bold()
-                    .frame(width: 120, height: 32)
-                    .foregroundColor(.black)
-                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(.gray, lineWidth: 0.75))
-            }
-        }
-        .padding(.trailing)
-    }
-    
-    var userInfoDetails: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(viewModel.user.fullname)
-                    .font(.title2).bold()
-                
-                Image(systemName: "checkmark.seal.fill")
-                    .foregroundColor(Color.themeColor)
-            }
-            
-            Text("@\(viewModel.user.username)")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-            
-            Text("It-entrepreneur")
-                .font(.subheadline)
-                .padding(.vertical)
-            
-            HStack(spacing: 24) {
-                HStack {
-                    Image(systemName: "mappin.and.ellipse")
-                    Text("Nicosia, CY")
-                }
-                HStack {
-                    Image(systemName: "link")
-                    Text("sergeyleschev.github.io")
-                }
-            }
-            .font(.caption)
-            .foregroundColor(.gray)
-                //
-            UserStatsView()
-                .padding(.vertical)
-        }
-        .padding(.horizontal)
-    }
-    
-    var postFilterBar: some View {
-        HStack {
-            ForEach(PostFilterViewModel.allCases, id: \.rawValue) { item in
-                VStack {
-                    Text(item.title)
-                        .font(.subheadline)
-                        .fontWeight(selectedFiler == item ? .semibold : .regular)
-                        .foregroundColor(selectedFiler == item ? .black : .gray)
-                    
-                    if selectedFiler == item {
-                        Capsule()
-                            .foregroundColor(Color.themeColor)
-                            .frame(height: 3)
-                            .matchedGeometryEffect(id: "filter", in: animation)
-                    } else {
-                        Capsule()
-                            .foregroundColor(Color(.clear))
-                            .frame(height: 3)
-                    }
-                }
-                .onTapGesture {
-                    withAnimation(.easeInOut) {
-                        self.selectedFiler = item
-                    }
-                }
-            }
-        }
-        .overlay(Divider().offset(x: 0, y: 16))
-    }
-    
-    var postsView: some View {
+    public var body: some View {
         ScrollView {
-            LazyVStack {
-                ForEach(viewModel.posts(forFilter: self.selectedFiler)) { post in
-                    PostRowView(post: post)
-                        .padding() 
+            LazyVStack(spacing: 16) {
+                ProfileHeaderView(viewModel: viewModel)
+                
+                if !viewModel.challenges.isEmpty {
+                    ProfilePinnedView(viewModel: viewModel)
+                        .padding(.horizontal, 16)
+                }
+                
+                FilterView(selectedFilter: $selectedFilter)
+                
+                VStack(alignment: .leading, spacing: 16) {
+                    if selectedFilter == .posts {
+                        if viewModel.isLoadingPosts && viewModel.posts.isEmpty {
+                            LoadingIndicatorView()
+                        } else if viewModel.posts.isEmpty {
+                            EmptyArrayMessageView(message: "No challenges found.")
+                        } else {
+                            PostListView(
+                                posts: viewModel.posts,
+                                onPostAppear: loadMorePostsIfNeeded
+                            )
+                        }
+                        
+                        if viewModel.isLoadingPosts {
+                            LoadingIndicatorView()
+                        }
+                    } else if selectedFilter == .challenges {
+                        if viewModel.isLoadingChallenges && viewModel.challenges.isEmpty {
+                            LoadingIndicatorView()
+                        } else if viewModel.challenges.isEmpty {
+                            EmptyArrayMessageView(message: "No challenges found.")
+                        } else {
+                            ChallengeListView(
+                                challenges: viewModel.challenges,
+                                onChallengeAppear: loadMoreChallengesIfNeeded
+                            )
+                        }
+                        
+                        if viewModel.isLoadingChallenges {
+                            LoadingIndicatorView()
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+        .refreshable {
+            withAnimation {
+                if selectedFilter == .posts {
+                    viewModel.resetPaginationPosts()
+                    viewModel.fetchUserPosts()
+                } else if selectedFilter == .challenges {
+                    viewModel.resetPaginationChallenges()
+                    viewModel.fetchUserChallenges()
                 }
             }
         }
+        .onAppear {
+            if selectedFilter == .posts {
+                if isFirstLoadPosts {
+                    viewModel.fetchUserPosts()
+                    isFirstLoadPosts = false
+                } else if viewModel.posts.isEmpty && !viewModel.isLoadingPosts {
+                    viewModel.fetchUserPosts()
+                }
+            } else if selectedFilter == .challenges {
+                if isFirstLoadPosts {
+                    viewModel.fetchUserChallenges()
+                    isFirstLoadPosts = false
+                } else if viewModel.challenges.isEmpty && !viewModel.isLoadingChallenges {
+                    viewModel.fetchUserChallenges()
+                }
+            }
+        }
+        .withStandardPageStyle()
+    }
+    
+    private func loadMorePostsIfNeeded(for post: PublicPost) {
+        guard post.id == viewModel.posts.last?.id,
+              viewModel.hasMorePosts,
+              !viewModel.isLoadingPosts,
+              !viewModel.posts.isEmpty
+        else { return }
+        viewModel.fetchUserPosts()
+    }
+    
+    private func loadMoreChallengesIfNeeded(for challenge: Challenge) {
+        guard challenge.id == viewModel.challenges.last?.id,
+              viewModel.hasMoreChallenges,
+              !viewModel.isLoadingChallenges,
+              !viewModel.challenges.isEmpty
+        else { return }
+        viewModel.fetchUserChallenges()
     }
 }
