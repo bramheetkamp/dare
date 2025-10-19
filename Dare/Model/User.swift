@@ -15,6 +15,9 @@ struct User: Identifiable, Decodable, Equatable, Hashable {
     let profileImageUrl: String?
     let email: String
     let timestamp: Timestamp
+    let location: String?
+    let description: String?
+    var isFollowing: Bool?
     var followersCount: Int?
     var followingCount: Int?
 }

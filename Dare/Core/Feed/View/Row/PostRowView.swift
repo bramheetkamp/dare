@@ -13,21 +13,28 @@ struct PostRowView: View {
     var showChallengeView: Bool = true
     
     private let postId: String
+    private let userId: String
     
-    init(postId: String, isVisible: Bool = true, showChallengeView: Bool = true) {
+    init(
+        postId: String,
+        userId: String,
+        isVisible: Bool = true,
+        showChallengeView: Bool = true
+    ) {
         self.postId = postId
+        self.userId = userId
         self.isVisible = isVisible
         self.showChallengeView = showChallengeView
     }
     
     var body: some View {
         VStack(spacing: 12) {
-            PostRowUserView(postId: postId)
+            PostRowUserView(postId: postId, userId: userId)
+            PostRowCaptionView(postId: postId)
             if showChallengeView {
                 PostRowChallengeView(postId: postId)
             }
             PostRowContentView(postId: postId, isVisible: isVisible)
-            PostRowCaptionView(postId: postId)
             PostRowButtonsView(postId: postId)
         }
         .padding(.vertical, 12)

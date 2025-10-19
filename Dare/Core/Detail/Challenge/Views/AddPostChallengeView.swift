@@ -18,19 +18,28 @@ struct AddPostChallengeView: View {
     }
 
     var body: some View {
-        VStack {
-            Spacer()
+        ZStack(alignment: .bottom) {
+            let baseHeight: CGFloat = 60 + 32
+            let backgroundHeight = baseHeight + safeAreaBottomPadding()
+            
+            Color("secondaryButton")
+                .cornerRadius(Style.CornerRadius.small, corners: [.topLeft, .topRight])
+                .frame(height: backgroundHeight)
+                .frame(maxWidth: .infinity)
+                .ignoresSafeArea(edges: .bottom)
+            
             InteractiveButton(
                 action: {
                     router.navigate(to: .createPost(challengeId: challengeId))
                 },
-                backgroundColor: .secondaryButton,
+                backgroundColor: .primaryButton,
                 cornerRadius: Style.CornerRadius.small,
                 padding: 16,
-                scaleEffect: true
+                scaleEffect: true,
+                height: 60,
             ) {
                 HStack {
-                    Text("Add a new update")
+                    Text("Create")
                         .font(.system(size: Style.FontSize.medium, weight: .semibold))
                         .foregroundColor(Color.white)
                     Spacer()
@@ -40,8 +49,14 @@ struct AddPostChallengeView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            .padding(.top, 16)
+            .padding(.bottom, (safeAreaBottomPadding() + 16))
         }
     }
+    
+    func safeAreaBottomPadding() -> CGFloat {
+        UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
+    }
+    
 }
 

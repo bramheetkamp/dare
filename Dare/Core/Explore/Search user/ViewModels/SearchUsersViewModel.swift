@@ -14,8 +14,6 @@ class SearchUsersViewModel: ObservableObject {
     // MARK: - Published Properties
     
     @Published var users: [User] = []
-    @Published var searchText = ""
-    @Published var currentSearchTerm: String = ""
     @Published var isLoading = false
     @Published var hasMorePosts = true
     
@@ -27,26 +25,31 @@ class SearchUsersViewModel: ObservableObject {
     
     private var lastDocument: DocumentSnapshot? = nil
     private let pageSize = 15
+    private let usersStore: UsersStore
+    
+    init(usersStore: UsersStore) {
+        self.usersStore = usersStore
+    }
     
     // MARK: - Fetching Users
     
     func fetchUsers() {
-        let currentSearch = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let currentSearch = usersStore.searchFriendsTerm.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard !currentSearch.isEmpty else {
             users.removeAll()
             lastDocument = nil
             hasMorePosts = true
-            currentSearchTerm = ""
+            usersStore.currentFriendsTerm = ""
             isLoading = false
             return
         }
         
-        if currentSearchTerm != currentSearch {
+        if usersStore.currentFriendsTerm != currentSearch {
             users.removeAll()
             lastDocument = nil
             hasMorePosts = true
-            currentSearchTerm = currentSearch
+            usersStore.currentFriendsTerm = currentSearch
         }
         
         guard !isLoading, hasMorePosts else { return }
@@ -56,7 +59,7 @@ class SearchUsersViewModel: ObservableObject {
             self.userService.fetchUsers(searchText: currentSearch, limit: self.pageSize, lastDocument: self.lastDocument) { [weak self] newUsers, lastDoc in
                 guard let self = self else { return }
                 
-                if self.currentSearchTerm != currentSearch {
+                if usersStore.currentFriendsTerm != currentSearch {
                     self.isLoading = false
                     return
                 }

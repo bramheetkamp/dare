@@ -85,3 +85,5 @@ enum AppDestination: Hashable, Identifiable, Codable {
     }
 
 }
+
+//xcrun simctl openurl booted "yourapp://your-domain.com/createChallenge"

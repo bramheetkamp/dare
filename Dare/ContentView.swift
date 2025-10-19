@@ -83,7 +83,7 @@ extension ContentView {
                     if router.selectedTabIndex == 0 {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button {
-                                router.present(sheet: .createChallenge)
+                                router.navigate(to: .createChallenge)
                             } label: {
                                 Image(systemName: "plus")
                                     .foregroundColor(.primary)

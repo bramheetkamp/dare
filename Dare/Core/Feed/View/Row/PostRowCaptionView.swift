@@ -21,13 +21,22 @@ struct PostRowCaptionView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             if let post = post {
-                Text(post.caption.isEmpty ? "No caption available." : post.caption)
-                    .font(.headline)
-                    .foregroundColor(Color("headerText"))
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                if ((post.title) != nil) {
+                    Text(post.title ?? "")
+                        .font(.headline)
+                        .foregroundColor(Color("headerText"))
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                if ((post.caption) != nil) {
+                    Text(post.caption ?? "")
+                        .font(.headline)
+                        .foregroundColor(Color("headerText"))
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
         }
         .padding(.horizontal, 10)

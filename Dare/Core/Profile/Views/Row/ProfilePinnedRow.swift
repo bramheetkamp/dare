@@ -37,17 +37,19 @@ struct ChallengeRowView: View {
                     guard let challengeId = challenge.id else { return }
                     router.navigate(to: .challengeDetail(challengeId: challengeId))
                 },
-                cornerRadius: Style.CornerRadius.big,
-                backgroundColor: Color("primaryButton").opacity(0.1)
+                cornerRadius: Style.CornerRadius.small,
+                backgroundColor: .primaryButton.opacity(0.1)
             ) {
-                HStack(spacing: 6) {
-                    Text("Show more")
+                HStack(spacing: 4) {
+                    Text("See more")
                         .font(.footnote)
                         .fontWeight(.medium)
                     Image(systemName: "chevron.right")
                         .font(.caption2)
                 }
-                .foregroundColor(Color("primaryButton"))
+                .foregroundColor(.primaryButton)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 1)
             }
         }
         .padding()

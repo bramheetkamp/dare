@@ -41,9 +41,11 @@ class FeedViewModel: ObservableObject {
     }
 
     private let postsStore: PostsStore
+    private let usersStore: UsersStore
 
-    init(postsStore: PostsStore) {
+    init(postsStore: PostsStore, usersStore: UsersStore) {
         self.postsStore = postsStore
+        self.usersStore = usersStore
         fetchPosts()
     }
 
@@ -64,7 +66,6 @@ class FeedViewModel: ObservableObject {
             guard let self = self else { return }
             self.postFetchService.fetchFeedPosts(followingUserIds: followingIds, limit: self.pageSize, lastDocument: self.lastPostDocument) { newPosts, lastDoc in
                 self.isLoadingPosts = false
-
                 if newPosts.isEmpty {
                     self.hasMorePosts = false
                     return
@@ -72,15 +73,14 @@ class FeedViewModel: ObservableObject {
 
                 let group = DispatchGroup()
                 var newPosts = newPosts
-
                 for index in 0 ..< newPosts.count {
-                    let uid = newPosts[index].uid
-
                     group.enter()
-                    self.userService.fetchUser(withUid: uid) { user in
+                    self.userService.fetchUser(withUid: newPosts[index].uid) { user in
                         self.postLikeService.checkIsUserLikedPost(newPosts[index]) { didLike in
-                            newPosts[index].user = user
                             newPosts[index].didLike = didLike
+                            if let user = user {
+                                self.usersStore.insertOrUpdate([user])
+                            }
 
                             group.leave()
                         }
@@ -89,7 +89,7 @@ class FeedViewModel: ObservableObject {
 
                 group.notify(queue: .main) {
                     self.postsStore.insertOrUpdate(newPosts)
-                    // Store the new post IDs (avoid duplicates)
+                    
                     let newIds = newPosts.compactMap { $0.id }
                     self.feedPostIds.append(contentsOf: newIds.filter { !self.feedPostIds.contains($0) })
                     self.lastPostDocument = lastDoc
@@ -101,10 +101,6 @@ class FeedViewModel: ObservableObject {
                 }
             }
         }
-    }
-
-    func updatePost(_ updatedPost: PublicPost) {
-        postsStore.insertOrUpdate([updatedPost])
     }
 
     func resetPagination() {

@@ -18,9 +18,10 @@ struct LocationSearchView: View {
         } label: {
             HStack {
                 Text(location.isEmpty ? "Search for a location" : location)
-                    .foregroundColor(location.isEmpty ? .gray : .primary)
+                    .foregroundColor(location.isEmpty ? .gray : .primaryButton)
                 Spacer()
                 Image(systemName: "magnifyingglass")
+                    .foregroundColor(location.isEmpty ? .gray : .primaryButton)
             }
             .padding()
             .background(Color.cell)

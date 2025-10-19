@@ -18,7 +18,7 @@ struct PostView: View {
     
     private let postId: String
     
-    // MARK: - Initializer
+    // MARK: - Initialization
     
     init(postId: String) {
         self.postId = postId

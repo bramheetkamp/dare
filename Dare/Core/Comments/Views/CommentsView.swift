@@ -15,7 +15,7 @@ struct CommentsView: View {
     @StateObject private var viewModel: CommentsViewModel
     @State private var isFirstLoad = true
     
-    // MARK: - Initializer
+    // MARK: - Initialization
     
     init(postId: String) {
         self.postId = postId
@@ -38,6 +38,7 @@ struct CommentsView: View {
             
             AddCommentView(viewModel: viewModel)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .withStandardPageStyle(title: "Comments", extendView: false)
     }
     

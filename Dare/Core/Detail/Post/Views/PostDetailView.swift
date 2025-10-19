@@ -24,7 +24,7 @@ struct PostDetailView: View {
     private let postId: String
     @State private var isFirstLoad = true
     
-    // MARK: - Initializer
+    // MARK: - Initialization
     
     init(postId: String, postsStore: PostsStore, selectedFilter: Binding<PostDetailFilter>) {
         self._selectedFilter = selectedFilter

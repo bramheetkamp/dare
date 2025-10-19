@@ -18,7 +18,7 @@ struct CategoryDetailView: View {
     
     private let categoryId: String
     
-    // MARK: - Initializer
+    // MARK: - Initialization
     
     init(categoryId: String) {
         self.categoryId = categoryId

@@ -21,7 +21,7 @@ struct PostHeaderView: View {
         postsStore.post(withId: postId)
     }
     
-    // MARK: - Initializer
+    // MARK: - Initialization
     
     init(postId: String) {
         self.postId = postId
@@ -30,24 +30,20 @@ struct PostHeaderView: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Color("primaryButton")
-                .frame(height: 200 + safeAreaTopPadding())
+                .frame(height: 260 + safeAreaTopPadding())
                 .cornerRadius(Style.CornerRadius.small, corners: [.bottomLeft, .bottomRight])
             
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .center, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(post?.caption ?? "")
-                            .font(.title2).fontWeight(.black)
-                            .foregroundColor(Color.white)
-                    }
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .center, spacing: 8) {
+                    Text(post?.title ?? "")
+                        .font(.title2).fontWeight(.black)
+                        .foregroundColor(Color.white)
+                    Text(post?.caption ?? "")
+                        .font(.title3).fontWeight(.black)
+                        .foregroundColor(Color.white)
                 }
                 .padding(.top, safeAreaTopPadding())
-            }
-            .padding(.leading, 16)
-            .padding(.bottom, 16)
-            
-            // Like button
-            HStack(spacing: 12) {
+                
                 InteractiveButtonStack(
                     action: {
                         handleLike()
@@ -64,13 +60,11 @@ struct PostHeaderView: View {
                             .font(.subheadline)
                             .foregroundColor(Color.white)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding(.trailing, 20)
-            .offset(y: 20)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
     }
 

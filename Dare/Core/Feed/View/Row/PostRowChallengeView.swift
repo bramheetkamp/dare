@@ -29,11 +29,11 @@ struct PostRowChallengeView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Update is part of challenge")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(Color("detailText"))
                     Text(post?.challenge?.challenge ?? "-")
                         .lineLimit(1)
                         .font(.subheadline)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color("headerText"))
                 }
                 
                 Spacer()
@@ -44,22 +44,22 @@ struct PostRowChallengeView: View {
                         router.navigate(to: .challengeDetail(challengeId: challengeId))
                     },
                     cornerRadius: Style.CornerRadius.small,
-                    backgroundColor: Color.white.opacity(0.2)
+                    backgroundColor: .primaryButton.opacity(0.1)
                 ) {
                     HStack(spacing: 4) {
-                        Text("Show more")
+                        Text("See more")
                             .font(.footnote)
                             .fontWeight(.medium)
                         Image(systemName: "chevron.right")
                             .font(.caption2)
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.primaryButton)
                     .padding(.horizontal, 4)
                     .padding(.vertical, 1)
                 }
             }
             .padding()
-            .background(.secondaryButton.opacity(0.8))
+            .background(Color("background"))
             .cornerRadius(Style.CornerRadius.small)
         }
         .padding(.horizontal, 10)

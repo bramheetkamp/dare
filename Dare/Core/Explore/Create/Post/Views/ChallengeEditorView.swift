@@ -17,21 +17,22 @@ struct ChallengeEditorView: View {
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: Style.CornerRadius.small)
                     .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    .background(Color.cell.cornerRadius(10))
+                    .background(Color.cell.cornerRadius(Style.CornerRadius.small))
 
                 if value.isEmpty {
                     Text(placeholder)
                         .foregroundColor(Color.gray)
-                        .padding(.horizontal, 22)
-                        .padding(.vertical, 20)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
                 }
 
                 TextEditor(text: $value)
                     .modifier(CustomTextEditor())
                     .focused($isFocused)
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, 12)
                     .padding(.vertical, 12)
                     .opacity(value.isEmpty ? 0.85 : 1)
+                    .multilineTextAlignment(.leading)
             }
         }
         .font(.title3)

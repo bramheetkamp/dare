@@ -16,14 +16,16 @@ struct CreatePostView: View {
     
     // MARK: - Properties
     
+    @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var postsStore: PostsStore
     @EnvironmentObject private var authViewModel: AuthViewModel
-    @EnvironmentObject private var router: AppRouter
+    @ObservedObject private var keyboard = KeyboardResponder()
     @Environment(\.dismiss) private var dismiss
     
     @StateObject private var viewModel: CreatePostViewModel
     
     @State private var challenge = ""
+    @State private var title = ""
     @State private var caption = ""
     @State private var selectedImage: UIImage? = nil
     @State private var selectedVideoURL: URL? = nil
@@ -49,45 +51,39 @@ struct CreatePostView: View {
     // MARK: - Body
     
     var body: some View {
-        ZStack {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        headerSection
-                        infoSection
-                        captionSection
-                        extraInfoSection
-                        submissionSection
-                        sendButton
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
+        ZStack(alignment: .bottom) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    infoSection
+                    captionSection
+                    extraInfoSection
+                    submissionSection
                 }
-                .scrollIndicators(.hidden)
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 120 + (keyboard.isKeyboardVisible ? 0 : safeAreaBottomPadding()))
             }
-            .withStandardPageStyle(extendView: false)
+            
+            sendButton
         }
+        .ignoresSafeArea(edges: .bottom)
+        .withStandardPageStyle(title: "Create Post", extendView: false)
     }
     
     // MARK: - View Components
     
-    private var headerSection: some View {
-        HeaderLabelView(text: "Create")
-            .padding(.top, 5)
-    }
-    
     private var infoSection: some View {
         InformationView(information: "Only your followers can see your challenge.")
-            .padding(.top, 10)
     }
     
     private var captionSection: some View {
-        VStack(alignment: .leading) {
-            HeaderLabelView(text: "How was it?", size: .title3)
-                .padding(.vertical, 20)
+        VStack(alignment: .leading, spacing: 16) {
+            ChallengeEditorView(
+                placeholder: "Amazing experience!",
+                value: $title
+            )
             
+            HeaderLabelView(text: "How was it?", size: .title3)
             ChallengeEditorView(
                 placeholder: "My dad and my friends were cheering me on along the way!",
                 value: $caption
@@ -98,9 +94,8 @@ struct CreatePostView: View {
     private var extraInfoSection: some View {
         VStack(alignment: .leading) {
             HeaderLabelView(text: "Extra Information", size: .title3)
-                .padding(.vertical, 20)
             
-            VStack(spacing: 15) {
+            VStack(spacing: 16) {
                 LocationSearchView(location: $location)
                 
                 datePickerView
@@ -129,9 +124,8 @@ struct CreatePostView: View {
     }
     
     private var submissionSection: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .leading, spacing: 16) {
             HeaderLabelView(text: "Submission", size: .title3)
-                .padding(.vertical, 20)
             
             Text("Add a photo or video")
                 .font(.headline)
@@ -154,7 +148,7 @@ struct CreatePostView: View {
                 .background(Color.blue)
                 .cornerRadius(Style.CornerRadius.small)
             }
-            .onChange(of: selectedItem) { _ in
+            .onChange(of: selectedItem) {
                 handleMediaSelection()
             }
             
@@ -167,14 +161,39 @@ struct CreatePostView: View {
     }
     
     private var sendButton: some View {
-        AnimatedButton(
-            action: sendPost,
-            label: "Send and dare",
-            backgroundColor: Color("primaryButton"),
-            foregroundColor: .white,
-            cornerRadius: Style.CornerRadius.small
-        )
-        .padding(.top, 40)
+        ZStack(alignment: .bottom) {
+            let baseHeight: CGFloat = 60 + 32
+            let backgroundHeight = baseHeight + (keyboard.isKeyboardVisible ? keyboard.keyboardHeight : safeAreaBottomPadding())
+            
+            Color("secondaryButton")
+                .cornerRadius(Style.CornerRadius.small, corners: [.topLeft, .topRight])
+                .frame(height: backgroundHeight)
+                .frame(maxWidth: .infinity)
+                .ignoresSafeArea(edges: .bottom)
+            
+            InteractiveButton(
+                action: sendPost,
+                backgroundColor: .primaryButton,
+                cornerRadius: Style.CornerRadius.small,
+                padding: 16,
+                scaleEffect: true,
+                height: 60,
+            ) {
+                HStack {
+                    Text("Create")
+                        .font(.system(size: Style.FontSize.medium, weight: .semibold))
+                        .foregroundColor(Color.white)
+                    Spacer()
+                    Image(systemName: "plus")
+                        .font(.system(size: Style.FontSize.medium, weight: .bold))
+                        .foregroundColor(Color.white)
+                }
+            }
+            .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .padding(.bottom, (keyboard.isKeyboardVisible ? keyboard.keyboardHeight : safeAreaBottomPadding()) + 16)
+        }
     }
     
     // MARK: - Media Handling
@@ -229,6 +248,7 @@ struct CreatePostView: View {
     
     private func sendPost() {
         viewModel.createPost(
+            title: title,
             caption: caption,
             image: selectedImage,
             videoUrl: selectedVideoURL,
@@ -240,5 +260,9 @@ struct CreatePostView: View {
             postsStore.insertOrUpdate([createdPost])
             router.navigateBack()
         }
+    }
+    
+    func safeAreaBottomPadding() -> CGFloat {
+        UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
     }
 }

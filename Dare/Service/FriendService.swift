@@ -6,11 +6,12 @@
 //
 
 import FirebaseFirestore
+import FirebaseAuth
 
 class FriendService {
     
-    // Singleton Firestore instance for reuse
     private let db = Firestore.firestore()
+    private let auth = Auth.auth()
     
     // MARK: - Firestore Collection References
     
@@ -32,40 +33,52 @@ class FriendService {
     
     // MARK: - Follow User with Transaction for Consistency
     
-    func followUser(currentUserId: String, targetUserId: String, completion: @escaping (Bool) -> Void) {
-        let batch = db.batch()
+    func followUser(_ user: User, completion: @escaping (Bool) -> Void) {
+        guard let uid = auth.currentUser?.uid, let userId = user.id else { return }
         
-        let currentUserFollowingRef = followingCollection(for: currentUserId).document(targetUserId)
-        let targetUserFollowersRef = followersCollection(for: targetUserId).document(currentUserId)
+        let db = Firestore.firestore()
+        let currentUserRef = userDoc(uid)
+        let targetUserRef = userDoc(userId)
+        let currentUserFollowingRef = followingCollection(for: uid).document(userId)
+        let targetUserFollowersRef = followersCollection(for: userId).document(uid)
         
-        batch.setData([:], forDocument: currentUserFollowingRef)
-        batch.setData([:], forDocument: targetUserFollowersRef)
-        batch.updateData(["followingCount": FieldValue.increment(Int64(1))], forDocument: userDoc(currentUserId))
-        batch.updateData(["followersCount": FieldValue.increment(Int64(1))], forDocument: userDoc(targetUserId))
-        
-        batch.commit { error in
-            if let error = error {
-                print("DEBUG: Failed to follow user with error: \(error.localizedDescription)")
-                completion(false)
-            } else {
-                print("DEBUG: Successfully followed user.")
-                completion(true)
+        db.runTransaction { transaction, errorPointer -> Any? in
+            do {
+                let currentUserSnap = try transaction.getDocument(currentUserRef)
+                let targetUserSnap = try transaction.getDocument(targetUserRef)
+                
+                let followingCount = (currentUserSnap.data()?["followingCount"] as? Int ?? 0) + 1
+                let followersCount = (targetUserSnap.data()?["followersCount"] as? Int ?? 0) + 1
+                
+                transaction.setData([:], forDocument: currentUserFollowingRef)
+                transaction.setData([:], forDocument: targetUserFollowersRef)
+                transaction.updateData(["followingCount": followingCount], forDocument: currentUserRef)
+                transaction.updateData(["followersCount": followersCount], forDocument: targetUserRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
             }
+            
+            return nil
+        } completion: { _, error in
+            completion(error == nil)
         }
     }
     
+    
     // MARK: - Unfollow User with Transaction
     
-    func unfollowUser(currentUserId: String, targetUserId: String, completion: @escaping (Bool) -> Void) {
+    func unfollowUser(_ user: User, completion: @escaping (Bool) -> Void) {
+        guard let uid = auth.currentUser?.uid, let userId = user.id else { return }
         let batch = db.batch()
         
-        let currentUserFollowingRef = followingCollection(for: currentUserId).document(targetUserId)
-        let targetUserFollowersRef = followersCollection(for: targetUserId).document(currentUserId)
+        let currentUserFollowingRef = followingCollection(for: uid).document(userId)
+        let targetUserFollowersRef = followersCollection(for: userId).document(uid)
         
         batch.deleteDocument(currentUserFollowingRef)
         batch.deleteDocument(targetUserFollowersRef)
-        batch.updateData(["followingCount": FieldValue.increment(Int64(-1))], forDocument: userDoc(currentUserId))
-        batch.updateData(["followersCount": FieldValue.increment(Int64(-1))], forDocument: userDoc(targetUserId))
+        batch.updateData(["followingCount": FieldValue.increment(Int64(-1))], forDocument: userDoc(uid))
+        batch.updateData(["followersCount": FieldValue.increment(Int64(-1))], forDocument: userDoc(userId))
         
         batch.commit { error in
             if let error = error {
@@ -135,5 +148,15 @@ class FriendService {
                 completion(Array(suggestedUserIds))
             }
         }
+    }
+    
+    func checkUserIsFollowing(_ user: User, completion: @escaping (Bool) -> Void) {
+        guard let uid = auth.currentUser?.uid, let userId = user.id else { return }
+        
+        followingCollection(for: uid)
+            .document(userId)
+            .getDocument { snapshot, _ in
+                completion(snapshot?.exists ?? false)
+            }
     }
 }

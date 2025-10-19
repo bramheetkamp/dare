@@ -43,13 +43,12 @@ class CommentsViewModel: ObservableObject {
             uid: userId,
             text: text,
             timestamp: Timestamp(date: Date()),
-            user: User(username: "", fullname: "You", profileImageUrl: nil, email: "", timestamp: Timestamp())
+            user: User(username: "", fullname: "You", profileImageUrl: nil, email: "", timestamp: Timestamp(), location: "", description: "")
         )
 
         commentService.addComment(postId: postId, text: text) { [weak self] success in
             guard let self = self else { return }
             if success {
-                // Insert new comment at top on main thread
                 Task { @MainActor in
                     self.comments.insert(newComment, at: 0)
                     self.newCommentText = ""

@@ -23,7 +23,7 @@ struct FeedChallengeRowView: View {
                 .foregroundColor(.primary)
                 .lineLimit(1)
 
-            Text("4 updates · \(challenge.caption) supporters")
+            Text("\(challenge.caption)")
                 .font(.subheadline)
                 .foregroundColor(Color("detailText"))
                 .lineLimit(1)
@@ -34,20 +34,18 @@ struct FeedChallengeRowView: View {
                     guard let challengeId = challenge.id else { return }
                     router.navigate(to: .challengeDetail(challengeId: challengeId))
                 },
-                backgroundColor: .primaryButton.opacity(0.9),
+                backgroundColor: .primaryButton.opacity(0.1),
                 cornerRadius: Style.CornerRadius.small,
-                padding: 10,
                 scaleEffect: true
             ) {
                 HStack {
                     Text("Add an update")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(Color.white)
+                        .font(.system(size: Style.FontSize.medium, weight: .semibold))
                     Spacer()
                     Image(systemName: "plus")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(Color.white)
+                        .font(.system(size: Style.FontSize.medium, weight: .bold))
                 }
+                .foregroundColor(.primaryButton)
             }
         }
         .padding()

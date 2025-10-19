@@ -27,6 +27,7 @@ struct PostUploadService {
 
     func uploadPost(
         challengeId: String,
+        title: String?,
         caption: String,
         location: String?,
         image: UIImage?,
@@ -41,22 +42,34 @@ struct PostUploadService {
         }
 
         if let videoUrl = videoUrl {
-            uploadVideoPost(uid: uid, challengeId: challengeId, caption: caption, location: location, videoUrl: videoUrl, date: date, completion: completion)
+            uploadVideoPost(uid: uid, challengeId: challengeId, title: title, caption: caption, location: location, videoUrl: videoUrl, date: date, completion: completion)
             return
         }
 
         if let image = image {
-            uploadImagePost(uid: uid, challengeId: challengeId, caption: caption, location: location, image: image, date: date, completion: completion)
+            uploadImagePost(uid: uid, challengeId: challengeId, title: title, caption: caption, location: location, image: image, date: date, completion: completion)
             return
         }
 
         // No media post
-        savePostToFirestore(uid: uid, challengeId: challengeId, caption: caption, location: location, imageUrl: nil, videoUrl: nil, date: date, mediaAspectRatio: nil, completion: completion)
+        savePostToFirestore(
+            uid: uid,
+            challengeId: challengeId,
+            title: title,
+            caption: caption,
+            location: location,
+            imageUrl: nil,
+            videoUrl: nil,
+            date: date,
+            mediaAspectRatio: nil,
+            completion: completion
+        )
     }
 
     private func uploadVideoPost(
         uid: String,
         challengeId: String,
+        title: String?,
         caption: String,
         location: String?,
         videoUrl: URL,
@@ -110,7 +123,18 @@ struct PostUploadService {
                             }
 
                             let aspectRatio = Float(thumbnailImage.size.width / thumbnailImage.size.height)
-                            self.savePostToFirestore(uid: uid, challengeId: challengeId, caption: caption, location: location, imageUrl: thumbnailUrl?.absoluteString, videoUrl: videoUrl?.absoluteString, date: date, mediaAspectRatio: aspectRatio, completion: completion)
+                            self.savePostToFirestore(
+                                uid: uid,
+                                challengeId: challengeId,
+                                title: title,
+                                caption: caption,
+                                location: location,
+                                imageUrl: thumbnailUrl?.absoluteString,
+                                videoUrl: videoUrl?.absoluteString,
+                                date: date,
+                                mediaAspectRatio: aspectRatio,
+                                completion: completion
+                            )
                         }
                     }
                 }
@@ -121,6 +145,7 @@ struct PostUploadService {
     private func uploadImagePost(
         uid: String,
         challengeId: String,
+        title: String?,
         caption: String,
         location: String?,
         image: UIImage,
@@ -156,14 +181,15 @@ struct PostUploadService {
 
                 let aspectRatio = Float(image.size.width / image.size.height)
 
-                self.savePostToFirestore(uid: uid, challengeId: challengeId, caption: caption, location: location, imageUrl: imageUrl, videoUrl: nil, date: date, mediaAspectRatio: aspectRatio, completion: completion)
+                self.savePostToFirestore(uid: uid, challengeId: challengeId, title: title, caption: caption, location: location, imageUrl: imageUrl, videoUrl: nil, date: date, mediaAspectRatio: aspectRatio, completion: completion)
             }
         }
     }
 
-    private func savePostToFirestore(uid: String, challengeId: String, caption: String, location: String?, imageUrl: String?, videoUrl: String? = nil, date: Date?, mediaAspectRatio: Float?, completion: @escaping (PublicPost?) -> Void) {
+    private func savePostToFirestore(uid: String, challengeId: String, title: String?, caption: String, location: String?, imageUrl: String?, videoUrl: String? = nil, date: Date?, mediaAspectRatio: Float?, completion: @escaping (PublicPost?) -> Void) {
         let data: [String: Any] = [
             "uid": uid,
+            "title": title?.trimmingCharacters(in: .whitespaces) ?? "",
             "caption": caption.trimmingCharacters(in: .whitespaces),
             "challengeId": challengeId,
             "timestamp": Timestamp(date: Date()),
@@ -197,8 +223,7 @@ struct PostUploadService {
                     return
                 }
                 do {
-                    var post = try snapshot.data(as: PublicPost.self)
-                    // Optionally, you could fetch the challenge object here as well.
+                    let post = try snapshot.data(as: PublicPost.self)
                     completion(post)
                 } catch {
                     print("DEBUG: Failed to decode new post: \(error.localizedDescription)")

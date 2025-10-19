@@ -22,6 +22,7 @@ struct PostListView: View {
                 ForEach(posts, id: \.id) { publicPost in
                     PostRowView(
                         postId: publicPost.id!,
+                        userId: publicPost.uid,
                         isVisible: playerManager.currentPlayerID == publicPost.id,
                         showChallengeView: showChallengeView
                     )

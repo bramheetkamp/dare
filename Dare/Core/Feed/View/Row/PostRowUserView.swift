@@ -12,22 +12,29 @@ struct PostRowUserView: View {
     
     @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var postsStore: PostsStore
+    @EnvironmentObject private var usersStore: UsersStore
     
     var postId: String
     var post: PublicPost? {
         postsStore.post(withId: postId)
     }
     
-    init(postId: String) {
+    var userId: String
+    var user: User? {
+        usersStore.user(withId: userId)
+    }
+    
+    init(postId: String, userId: String) {
         self.postId = postId
+        self.userId = userId
     }
     
     var body: some View {
         Button {
-            guard let userId = post?.user?.id, !userId.isEmpty else { return }
+            guard let userId = post?.uid, !userId.isEmpty else { return }
             router.navigate(to: .profile(userId: userId))
         } label: {
-            if let user = post?.user, let post = post {
+            if let user = user, let post = post {
                 HStack(alignment: .center, spacing: 12) {
                     KFImage(URL(string: user.avatarUrl))
                         .resizable()

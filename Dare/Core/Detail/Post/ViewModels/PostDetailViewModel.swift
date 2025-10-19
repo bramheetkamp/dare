@@ -12,7 +12,6 @@ import FirebaseAuth
 @MainActor
 class PostDetailViewModel: ObservableObject {
     
-    @Published var postId: String
     @Published var post: PublicPost?
     @Published var isFirstLoad = true
     
@@ -20,6 +19,7 @@ class PostDetailViewModel: ObservableObject {
     private let postFetchService = PostFetchService()
     private let postLikeService = PostLikeService()
     
+    private let postId: String
     private let postsStore: PostsStore
     
     init(postId: String, postsStore: PostsStore) {
@@ -45,23 +45,12 @@ class PostDetailViewModel: ObservableObject {
         }
     }
     
-    func likePost() {
-        guard let post = post else { return }
-        postLikeService.likePost(post) { [weak self] in
-            guard let self = self else { return }
-            var updated = post
-            updated.didLike = true
-            updated.likes += 1
-            self.postsStore.insertOrUpdate([updated])
-            self.post = updated
-        }
-    }
-    
-    func checkIfUserLikedPost() {
+    private func checkIfUserLikedPost() {
         guard let post = post else { return }
         postLikeService.checkIsUserLikedPost(post) { [weak self] didLike in
             guard let self = self else { return }
             self.post?.didLike = didLike
+            self.postsStore.insertOrUpdate([post])
         }
     }
 }

@@ -20,7 +20,7 @@ struct PostContentView: View {
         postsStore.post(withId: postId)
     }
     
-    // MARK: - Initializer
+    // MARK: - Initialization
     
     init(postId: String) {
         self.postId = postId
@@ -49,16 +49,16 @@ struct PostContentView: View {
                         router.navigate(to: .challengeDetail(challengeId: challengeId))
                     },
                     cornerRadius: Style.CornerRadius.small,
-                    backgroundColor: Color.white.opacity(0.2)
+                    backgroundColor: .primaryButton.opacity(0.1)
                 ) {
                     HStack(spacing: 4) {
-                        Text("Show more")
+                        Text("See more")
                             .font(.footnote)
                             .fontWeight(.medium)
                         Image(systemName: "chevron.right")
                             .font(.caption2)
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.primaryButton)
                     .padding(.horizontal, 4)
                     .padding(.vertical, 1)
                 }

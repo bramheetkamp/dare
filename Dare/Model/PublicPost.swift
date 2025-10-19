@@ -9,7 +9,8 @@ import FirebaseFirestore
 
 struct PublicPost: Identifiable, Decodable, Equatable, Hashable {
     @DocumentID var id: String?
-    let caption: String
+    let title: String?
+    let caption: String?
     let challengeId: String?
     let timestamp: Timestamp
     let timestampUpdate: Timestamp

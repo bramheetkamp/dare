@@ -20,7 +20,7 @@ public struct ChallengeDetailView: View {
     private let challengeId: String
     @State private var isFirstLoad = true
     
-    // MARK: - Initializer
+    // MARK: - Initialization
     
     init(challengeId: String) {
         self.challengeId = challengeId
@@ -32,7 +32,7 @@ public struct ChallengeDetailView: View {
     public var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView {
-                LazyVStack(spacing: 16) {
+                LazyVStack(alignment: .leading, spacing: 16) {
                     ChallengeHeaderView(viewModel: viewModel)
                     
                     VStack(alignment: .leading, spacing: 16) {
@@ -55,8 +55,8 @@ public struct ChallengeDetailView: View {
                         }
                     }
                     .padding(.top, 16)
-                    .padding(.bottom, 80)
                     .padding(.horizontal, 16)
+                    .padding(.bottom, 120 + safeAreaBottomPadding())
                 }
             }
             .refreshable { refreshPosts() }
@@ -64,6 +64,7 @@ public struct ChallengeDetailView: View {
             AddPostChallengeView(challengeId: challengeId)
         }
         .onAppear(perform: loadInitialData)
+        .ignoresSafeArea(edges: .bottom)
         .withStandardPageStyle()
     }
     
@@ -98,4 +99,9 @@ public struct ChallengeDetailView: View {
             viewModel.fetchPosts()
         }
     }
+    
+    func safeAreaBottomPadding() -> CGFloat {
+        UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
+    }
+    
 }

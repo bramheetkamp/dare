@@ -36,6 +36,7 @@ class CreatePostViewModel: ObservableObject {
     }
     
     func createPost(
+        title: String?,
         caption: String,
         image: UIImage?,
         videoUrl: URL?,
@@ -50,6 +51,7 @@ class CreatePostViewModel: ObservableObject {
         }
         postUploadService.uploadPost(
             challengeId: challengeId,
+            title: title,
             caption: caption,
             location: location,
             image: image,

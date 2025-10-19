@@ -16,8 +16,8 @@ struct FeedListView: View {
     @State private var isFirstLoad = true
     @Binding private var selectedFilter: FeedFilter
     
-    init(postsStore: PostsStore, selectedFilter: Binding<FeedFilter>) {
-        _feedViewModel = StateObject(wrappedValue: FeedViewModel(postsStore: postsStore))
+    init(postsStore: PostsStore, usersStore: UsersStore, selectedFilter: Binding<FeedFilter>) {
+        _feedViewModel = StateObject(wrappedValue: FeedViewModel(postsStore: postsStore, usersStore: usersStore))
         self._selectedFilter = selectedFilter
     }
     

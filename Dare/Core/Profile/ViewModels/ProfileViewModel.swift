@@ -12,7 +12,6 @@ import FirebaseAuth
 @MainActor
 class ProfileViewModel: ObservableObject {
     
-    let userId: String
     @Published var user: User?
     @Published var posts = [PublicPost]()
     @Published var challenges = [Challenge]()
@@ -31,14 +30,21 @@ class ProfileViewModel: ObservableObject {
     private var lastDocumentChallenges: DocumentSnapshot? = nil
     private let pageSize = 5
     
-    init(userId: String) {
+    private let userId: String
+    private let usersStore: UsersStore
+    
+    init(userId: String, usersStore: UsersStore) {
         self.userId = userId
-        fetchUser()
+        self.usersStore = usersStore
+        loadUser()
     }
     
-    var actionButtonTitle: String {
-        guard let user = user else { return "" }
-        return user.isCurrentUser ? "Settings" : (isFollowing ? "Unfollow" : "Follow")
+    func loadUser() {
+        if let cached = usersStore.user(withId: userId) {
+            self.user = cached
+        } else {
+            fetchUser()
+        }
     }
     
     func fetchUser() {
@@ -46,9 +52,9 @@ class ProfileViewModel: ObservableObject {
             guard let self = self else { return }
             self.user = fetchedUser
             
+            checkIfUserFollowing()
             fetchUserPosts()
             fetchUserChallenges()
-            checkIfFollowing()
         }
     }
     
@@ -100,39 +106,23 @@ class ProfileViewModel: ObservableObject {
         lastDocumentChallenges = nil
         hasMoreChallenges = true
     }
-
-    func followOrUnfollowUser() {
-        guard let currentUserId = Auth.auth().currentUser?.uid, let targetUserId = user?.id else { return }
+ 
+    private func checkIfUserFollowing() {
+        guard let currentUserId = Auth.auth().currentUser?.uid, var friend = user else { return }
         
-        if isFollowing {
-            friendService.unfollowUser(currentUserId: currentUserId, targetUserId: targetUserId) { [weak self] success in
-                guard let self = self else { return }
-                if success {
-                    self.isFollowing = false
-                }
-            }
-        } else {
-            friendService.followUser(currentUserId: currentUserId, targetUserId: targetUserId) { [weak self] success in
-                guard let self = self else { return }
-                if success {
-                    self.isFollowing = true
-                }
-            }
+        if currentUserId == friend.id {
+            friend.isFollowing = false
+            usersStore.insertOrUpdate([friend])
+            self.user = friend
+            return
         }
-    }
-
-    private func checkIfFollowing() {
-        guard let currentUserId = Auth.auth().currentUser?.uid, let targetUserId = user?.id else { return }
         
-        Firestore.firestore()
-            .collection("users")
-            .document(currentUserId)
-            .collection("following")
-            .document(targetUserId)
-            .getDocument { [weak self] snapshot, _ in
-                guard let self = self else { return }
-                self.isFollowing = snapshot?.exists ?? false
-            }
+        friendService.checkUserIsFollowing(friend) { [weak self] following in
+            guard let self = self else { return }
+            friend.isFollowing = following
+            self.usersStore.insertOrUpdate([friend])
+            self.user = friend
+        }
     }
     
     func logout() throws {

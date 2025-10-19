@@ -10,41 +10,20 @@ import SwiftUI
 struct CreateChallengeView: View {
     
     @EnvironmentObject private var router: AppRouter
+    @ObservedObject private var keyboard = KeyboardResponder()
+    
     @State private var challenge = ""
     @State private var caption = ""
     @FocusState private var focusedField: Field?
     
     @ObservedObject var viewModel = CreateChallengeViewModel()
-
+    
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 16) {
-                ZStack(alignment: .bottomLeading) {
-                    Color("primaryButton")
-                        .frame(height: 140 + safeAreaTopPadding())
-                        .cornerRadius(Style.CornerRadius.small, corners: [.bottomLeft, .bottomRight])
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(alignment: .center, spacing: 16) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("New Challenge")
-                                    .font(.title2).fontWeight(.black)
-                                    .foregroundColor(Color.white)
-                            }
-                        }
-                        .padding(.top, safeAreaTopPadding())
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
-                }
-                
-                // Challenge Section
-                VStack(spacing: 16) {
-                    HeaderLabelView(text: "What would you like to do?", size: .title3)
-                        .padding(.top, 20)
-                    
+        ZStack(alignment: .bottom) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
                     ChallengeInputView(
-                        placeholder: "Become a baker",
+                        placeholder: "Run ten marathons 🏃🏼‍♂️",
                         value: $challenge,
                         focus: $focusedField,
                         focusField: .challenge
@@ -53,9 +32,10 @@ struct CreateChallengeView: View {
                     .onSubmit {
                         focusedField = .caption
                     }
+                    .padding(.top, 16)
                     
                     ChallengeInputView(
-                        placeholder: "Description",
+                        placeholder: "I wanna do every marathon in a different country!",
                         value: $caption,
                         focus: $focusedField,
                         focusField: .caption
@@ -64,23 +44,49 @@ struct CreateChallengeView: View {
                     .onSubmit {
                         createChallenge()
                     }
-
-                    AnimatedButton(
-                        action: createChallenge,
-                        label: "Start your journey!",
-                        backgroundColor: Color("primaryButton"),
-                        foregroundColor: .white,
-                        cornerRadius: Style.CornerRadius.small
-                    )
-                    .disabled(challenge.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    .padding(.top, 40)
                 }
                 .padding(.horizontal, 16)
-
-                Spacer()
+                .padding(.top, 16)
+                .padding(.bottom, 120 + (keyboard.isKeyboardVisible ? 0 : safeAreaBottomPadding()))
+            }
+            
+            ZStack(alignment: .bottom) {
+                let baseHeight: CGFloat = 60 + 32
+                let backgroundHeight = baseHeight + (keyboard.isKeyboardVisible ? keyboard.keyboardHeight : safeAreaBottomPadding())
+                
+                Color("secondaryButton")
+                    .cornerRadius(Style.CornerRadius.small, corners: [.topLeft, .topRight])
+                    .frame(height: backgroundHeight)
+                    .frame(maxWidth: .infinity)
+                    .ignoresSafeArea(edges: .bottom)
+                
+                InteractiveButton(
+                    action: createChallenge,
+                    backgroundColor: .primaryButton,
+                    cornerRadius: Style.CornerRadius.small,
+                    padding: 16,
+                    scaleEffect: true,
+                    height: 60,
+                ) {
+                    HStack {
+                        Text("Create")
+                            .font(.system(size: Style.FontSize.medium, weight: .semibold))
+                            .foregroundColor(Color.white)
+                        Spacer()
+                        Image(systemName: "plus")
+                            .font(.system(size: Style.FontSize.medium, weight: .bold))
+                            .foregroundColor(Color.white)
+                    }
+                }
+                .disabled(challenge.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, (keyboard.isKeyboardVisible ? keyboard.keyboardHeight : safeAreaBottomPadding()) + 16)
             }
         }
-        .ignoresSafeArea(edges: .top)
+        .ignoresSafeArea(edges: .bottom)
+        .withStandardPageStyle(title: "Create Challenge", extendView: false)
+        
     }
     
     func createChallenge() {
@@ -92,8 +98,8 @@ struct CreateChallengeView: View {
         }
     }
     
-    func safeAreaTopPadding() -> CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0
+    func safeAreaBottomPadding() -> CGFloat {
+        UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
     }
     
 }

@@ -1,5 +1,5 @@
 //
-//  ProfileView.swift
+//  ProfileDetailView.swift
 //  Dare
 //
 //  Created by Bram Heetkamp on 29/10/24.
@@ -13,28 +13,37 @@ enum ProfileFilter: String, CaseIterable {
     case challenges = "Challenges"
 }
 
-public struct ProfileView: View {
-    let userId: String
-    @StateObject var viewModel: ProfileViewModel
-    @State private var selectedFilter: ProfileFilter = .posts
+public struct ProfileDetailView: View {
+    
+    // MARK: - Properties
+    
+    @StateObject private var viewModel: ProfileViewModel
+    @Binding var selectedFilter: ProfileFilter
+    
     @State private var isFirstLoadPosts = true
     @State private var isFirstLoadChallenges = true
     @State private var currentPlayerID: String? = nil
     
-    init(userId: String) {
+    let userId: String
+    
+    // MARK: - Initialization
+    
+    init(userId: String, usersStore: UsersStore, selectedFilter: Binding<ProfileFilter>) {
+        self._selectedFilter = selectedFilter
         self.userId = userId
-        _viewModel = StateObject(wrappedValue: ProfileViewModel(userId: userId))
+        _viewModel = StateObject(wrappedValue: ProfileViewModel(userId: userId, usersStore: usersStore))
     }
     
     public var body: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ProfileHeaderView(viewModel: viewModel)
+                ProfileHeaderView(userId: userId)
                 
-                if !viewModel.challenges.isEmpty {
-                    ProfilePinnedView(viewModel: viewModel)
-                        .padding(.horizontal, 16)
-                }
+                // TODO: Pinned challenges
+//                if !viewModel.challenges.isEmpty {
+//                    ProfilePinnedView(viewModel: viewModel)
+//                        .padding(.horizontal, 16)
+//                }
                 
                 FilterView(selectedFilter: $selectedFilter)
                 

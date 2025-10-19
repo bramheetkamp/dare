@@ -25,6 +25,11 @@ class ChallengeDetailViewModel: ObservableObject {
     @Published var hasMorePosts = true
     @Published var isFirstLoad = true
     
+    var actionHeaderButtonTitle: String {
+        guard let _ = challenge else { return "" }
+        return "Copy Challenge"
+    }
+    
     // MARK: - Private Services
     
     private let challengeService = ChallengeService()

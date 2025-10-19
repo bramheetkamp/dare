@@ -14,6 +14,7 @@ struct InteractiveButton<Content: View>: View {
     let cornerRadius: CGFloat
     let padding: CGFloat
     let scaleEffect: Bool
+    let height: CGFloat?
 
     @State private var isPressed = false
 
@@ -23,6 +24,7 @@ struct InteractiveButton<Content: View>: View {
         cornerRadius: CGFloat = Style.CornerRadius.small,
         padding: CGFloat = 10,
         scaleEffect: Bool = true,
+        height: CGFloat? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.action = action
@@ -30,6 +32,7 @@ struct InteractiveButton<Content: View>: View {
         self.cornerRadius = cornerRadius
         self.padding = padding
         self.scaleEffect = scaleEffect
+        self.height = height
         self.content = content()
     }
 
@@ -38,6 +41,9 @@ struct InteractiveButton<Content: View>: View {
             content
                 .padding(padding)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .applyIf(height != nil) { view in
+                    view.frame(height: height!)
+                }
                 .background(backgroundColor)
                 .cornerRadius(cornerRadius)
                 .scaleEffect(scaleEffect && isPressed ? 0.95 : 1.0)
