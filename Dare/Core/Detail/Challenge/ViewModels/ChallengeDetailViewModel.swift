@@ -27,7 +27,7 @@ class ChallengeDetailViewModel: ObservableObject {
     
     var actionHeaderButtonTitle: String {
         guard let _ = challenge else { return "" }
-        return "Copy Challenge"
+        return "Let me try this"
     }
     
     // MARK: - Private Services

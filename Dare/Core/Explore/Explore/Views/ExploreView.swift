@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ExploreView: View {
+    
     @StateObject private var viewModel = ExploreViewModel()
     @EnvironmentObject private var router: AppRouter
     

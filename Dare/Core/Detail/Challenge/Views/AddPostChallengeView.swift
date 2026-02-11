@@ -19,10 +19,10 @@ struct AddPostChallengeView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            let baseHeight: CGFloat = 60 + 32
+            let baseHeight: CGFloat = 52 + 32
             let backgroundHeight = baseHeight + safeAreaBottomPadding()
             
-            Color("secondaryButton")
+            Color(.cell)
                 .cornerRadius(Style.CornerRadius.small, corners: [.topLeft, .topRight])
                 .frame(height: backgroundHeight)
                 .frame(maxWidth: .infinity)
@@ -32,21 +32,20 @@ struct AddPostChallengeView: View {
                 action: {
                     router.navigate(to: .createPost(challengeId: challengeId))
                 },
-                backgroundColor: .primaryButton,
+                backgroundColor: .primaryButton.opacity(0.1),
                 cornerRadius: Style.CornerRadius.small,
                 padding: 16,
                 scaleEffect: true,
-                height: 60,
+                height: 52,
             ) {
                 HStack {
                     Text("Create")
                         .font(.system(size: Style.FontSize.medium, weight: .semibold))
-                        .foregroundColor(Color.white)
                     Spacer()
                     Image(systemName: "plus")
                         .font(.system(size: Style.FontSize.medium, weight: .bold))
-                        .foregroundColor(Color.white)
                 }
+                .foregroundColor(.primaryButton)
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)

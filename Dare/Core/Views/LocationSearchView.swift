@@ -18,12 +18,12 @@ struct LocationSearchView: View {
         } label: {
             HStack {
                 Text(location.isEmpty ? "Search for a location" : location)
-                    .foregroundColor(location.isEmpty ? .gray : .primaryButton)
                 Spacer()
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(location.isEmpty ? .gray : .primaryButton)
             }
-            .padding()
+            .foregroundStyle(.headerText)
+            .opacity(location.isEmpty ? 0.3 : 1)
+            .padding(16)
             .background(Color.cell)
             .cornerRadius(Style.CornerRadius.small)
         }
@@ -45,13 +45,13 @@ struct LocationSearchSheet: View {
         NavigationView {
             VStack {
                 TextField("Type a location...", text: $searchText)
-                    .padding(10)
+                    .padding(16)
                     .background(Color(.systemGray6))
                     .cornerRadius(Style.CornerRadius.small)
                     .padding(.horizontal)
                     .focused($isTextFieldFocused)
-                    .onChange(of: searchText) { newValue in
-                        completerDelegate.completer.queryFragment = newValue
+                    .onChange(of: searchText) { _, new in
+                        completerDelegate.completer.queryFragment = new
                     }
                     .disableAutocorrection(true)
                     

@@ -10,17 +10,16 @@ import SwiftUI
 struct InformationView: View {
     let information: String
     var body: some View {
-        HStack {
+        HStack(spacing: 8) {
             Image(systemName: "info.circle.fill")
-                .padding()
-            Spacer()
+                .font(.subheadline)
             Text(information)
                 .font(.subheadline)
-                .foregroundColor(Color("headerText"))
-                .padding()
+            Spacer()
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 10)
+        .foregroundStyle(.headerText)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
         .background(Color("cell"))
         .cornerRadius(Style.CornerRadius.small)
     }

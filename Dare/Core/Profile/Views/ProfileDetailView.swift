@@ -39,12 +39,6 @@ public struct ProfileDetailView: View {
             LazyVStack(spacing: 16) {
                 ProfileHeaderView(userId: userId)
                 
-                // TODO: Pinned challenges
-//                if !viewModel.challenges.isEmpty {
-//                    ProfilePinnedView(viewModel: viewModel)
-//                        .padding(.horizontal, 16)
-//                }
-                
                 FilterView(selectedFilter: $selectedFilter)
                 
                 VStack(alignment: .leading, spacing: 16) {
@@ -52,7 +46,7 @@ public struct ProfileDetailView: View {
                         if viewModel.isLoadingPosts && viewModel.posts.isEmpty {
                             LoadingIndicatorView()
                         } else if viewModel.posts.isEmpty {
-                            EmptyArrayMessageView(message: "No challenges found.")
+                            EmptyArrayMessageView(message: "No posts found.")
                         } else {
                             PostListView(
                                 posts: viewModel.posts,
@@ -81,6 +75,7 @@ public struct ProfileDetailView: View {
                     }
                 }
                 .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
         }
         .refreshable {
@@ -95,20 +90,18 @@ public struct ProfileDetailView: View {
             }
         }
         .onAppear {
-            if selectedFilter == .posts {
-                if isFirstLoadPosts {
-                    viewModel.fetchUserPosts()
-                    isFirstLoadPosts = false
-                } else if viewModel.posts.isEmpty && !viewModel.isLoadingPosts {
-                    viewModel.fetchUserPosts()
-                }
-            } else if selectedFilter == .challenges {
-                if isFirstLoadPosts {
-                    viewModel.fetchUserChallenges()
-                    isFirstLoadPosts = false
-                } else if viewModel.challenges.isEmpty && !viewModel.isLoadingChallenges {
-                    viewModel.fetchUserChallenges()
-                }
+            if isFirstLoadPosts {
+                viewModel.fetchUserPosts()
+                isFirstLoadPosts = false
+            } else if viewModel.posts.isEmpty && !viewModel.isLoadingPosts {
+                viewModel.fetchUserPosts()
+            }
+            
+            if isFirstLoadChallenges {
+                viewModel.fetchUserChallenges()
+                isFirstLoadChallenges = false
+            } else if viewModel.challenges.isEmpty && !viewModel.isLoadingChallenges {
+                viewModel.fetchUserChallenges()
             }
         }
         .withStandardPageStyle()

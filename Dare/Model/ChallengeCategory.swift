@@ -11,6 +11,6 @@ struct ChallengeCategory: Identifiable, Decodable, Hashable, Equatable {
     @DocumentID var id: String?
     let title: String
     let subtitle: String
-    let icon: String
     let backgroundColor: String
+    var emojis: [String]?
 }

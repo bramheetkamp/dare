@@ -13,7 +13,6 @@ struct PostView: View {
     // MARK: - Properties
     
     @EnvironmentObject private var postsStore: PostsStore
-    
     @State private var selectedFilter: PostDetailFilter = .all
     
     private let postId: String
@@ -25,7 +24,11 @@ struct PostView: View {
     }
 
     var body: some View {
-        PostDetailView(postId: postId, postsStore: postsStore, selectedFilter: $selectedFilter)
+        PostDetailView(
+            postId: postId,
+            postsStore: postsStore,
+            selectedFilter: $selectedFilter
+        )
     }
 }
 

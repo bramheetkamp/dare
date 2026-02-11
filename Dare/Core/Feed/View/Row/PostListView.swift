@@ -9,7 +9,6 @@ import SwiftUI
 
 struct PostListView: View {
     
-    @EnvironmentObject private var postsStore: PostsStore
     @EnvironmentObject var playerManager: PlayerManager
     
     var showChallengeView: Bool = true
@@ -22,6 +21,7 @@ struct PostListView: View {
                 ForEach(posts, id: \.id) { publicPost in
                     PostRowView(
                         postId: publicPost.id!,
+                        challengeId: publicPost.challengeId!,
                         userId: publicPost.uid,
                         isVisible: playerManager.currentPlayerID == publicPost.id,
                         showChallengeView: showChallengeView

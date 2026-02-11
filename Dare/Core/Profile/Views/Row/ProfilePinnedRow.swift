@@ -17,20 +17,25 @@ struct ChallengeRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
+            if let emojis = challenge.emojis {
+                EmojiDisplaySquare(emojis: emojis, size: 50)
+            }
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(challenge.challenge)
                     .font(.headline)
                     .foregroundColor(.primary)
                     .lineLimit(1)
                 
-                let caption = challenge.caption.isEmpty ? "" : " · \(challenge.caption)"
-                Text("4 updates\(caption)")
+                Text(challenge.caption)
                     .font(.subheadline)
                     .foregroundColor(Color("detailText"))
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            
+            Spacer()
             
             InteractiveButtonStack(
                 action: {

@@ -10,27 +10,39 @@ import SwiftUI
 struct PostRowChallengeView: View {
     
     @EnvironmentObject private var router: AppRouter
-    @EnvironmentObject private var postsStore: PostsStore
+    @EnvironmentObject private var challengesStore: ChallengesStore
+    
+    @StateObject private var viewModel: PostRowChallengeViewModel
     
     @State private var navigateToChallenge = false
     
-    var postId: String
-    var post: PublicPost? {
-        postsStore.post(withId: postId)
+    var challengeId: String
+    var challenge: Challenge? {
+        challengesStore.challenge(withId: challengeId)
     }
     
-    init(postId: String) {
-        self.postId = postId
+    init(challengeId: String, challengesStore: ChallengesStore) {
+        self.challengeId = challengeId
+        _viewModel = StateObject(wrappedValue: PostRowChallengeViewModel(
+            challengeId: challengeId,
+            challengesStore: challengesStore
+        ))
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center) {
+            HStack(alignment: .center, spacing: 2) {
+                if let emojis = viewModel.challenge?.emojis {
+                    EmojiDisplaySquare(
+                        emojis: emojis,
+                        size: 30
+                    )
+                }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Update is part of challenge")
                         .font(.caption)
                         .foregroundColor(Color("detailText"))
-                    Text(post?.challenge?.challenge ?? "-")
+                    Text(challenge?.challenge ?? "-")
                         .lineLimit(1)
                         .font(.subheadline)
                         .foregroundColor(Color("headerText"))
@@ -40,7 +52,6 @@ struct PostRowChallengeView: View {
                 
                 InteractiveButtonStack(
                     action: {
-                        guard let challengeId = post?.challenge?.id else { return }
                         router.navigate(to: .challengeDetail(challengeId: challengeId))
                     },
                     cornerRadius: Style.CornerRadius.small,
@@ -58,11 +69,10 @@ struct PostRowChallengeView: View {
                     .padding(.vertical, 1)
                 }
             }
-            .padding()
+            .padding(16)
             .background(Color("background"))
             .cornerRadius(Style.CornerRadius.small)
         }
-        .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

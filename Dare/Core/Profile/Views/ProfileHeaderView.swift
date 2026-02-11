@@ -29,7 +29,7 @@ struct ProfileHeaderView: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Color("primaryButton")
-                .frame(height: 260 + safeAreaTopPadding())
+                .frame(height: 280 + safeAreaTopPadding())
                 .cornerRadius(Style.CornerRadius.small, corners: [.bottomLeft, .bottomRight])
             
             VStack(alignment: .leading, spacing: 16) {
@@ -53,9 +53,10 @@ struct ProfileHeaderView: View {
                 .padding(.top, safeAreaTopPadding())
                 
                 if user?.description != nil {
-                    Text("@\(user?.description ?? "")")
+                    Text(user?.description ?? "")
                         .font(.subheadline)
                         .foregroundColor(Color.white)
+                        .lineLimit(2)
                 }
                 
                 HStack(spacing: 16) {

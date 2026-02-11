@@ -13,6 +13,11 @@ class AppRouter: ObservableObject {
     @Published var presentedSheet: AppDestination?
     @Published var presentedFullScreenCover: AppDestination?
     @Published var selectedTabIndex: Int = 0
+    @Published var emojiPickerIndex: EmojiPickerIndex?
+
+    struct EmojiPickerIndex: Identifiable {
+        var id: Int
+    }
     
     // Navigation stack management
     private var navigationHistory: [AppDestination] = []

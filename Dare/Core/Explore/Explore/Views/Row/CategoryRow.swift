@@ -8,17 +8,11 @@
 import SwiftUI
 
 struct CategoryRow: View {
-    let category: ChallengeCategory
-    @State private var isPressed = false
+    
     @EnvironmentObject private var router: AppRouter
-
-    var validIconName: String {
-        let icon = category.icon.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !icon.isEmpty, UIImage(systemName: icon) != nil {
-            return icon
-        }
-        return "circle"
-    }
+    
+    @State private var isPressed = false
+    let category: ChallengeCategory
 
     var body: some View {
         Button(action: {
@@ -26,11 +20,14 @@ struct CategoryRow: View {
             router.navigate(to: .challengeCategory(categoryId: categoryId))
         }) {
             VStack(alignment: .leading, spacing: 10) {
-                Image(systemName: validIconName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 40)
-                    .foregroundColor(.white)
+                if let emojis = category.emojis {
+                    EmojiDisplaySquare(
+                        emojis: emojis,
+                        size: 50,
+                        showBackground: false
+                    )
+                }
+                
                 Text(category.title)
                     .font(.headline)
                     .foregroundColor(.white)

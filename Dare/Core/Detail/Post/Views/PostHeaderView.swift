@@ -34,7 +34,7 @@ struct PostHeaderView: View {
                 .cornerRadius(Style.CornerRadius.small, corners: [.bottomLeft, .bottomRight])
             
             VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .center, spacing: 8) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text(post?.title ?? "")
                         .font(.title2).fontWeight(.black)
                         .foregroundColor(Color.white)

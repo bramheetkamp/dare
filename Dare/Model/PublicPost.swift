@@ -18,12 +18,14 @@ struct PublicPost: Identifiable, Decodable, Equatable, Hashable {
     let uid: String
     
     var likes: Int
-    var imageUrl: String?
-    var videoUrl: String?
-    var mediaAspectRatio: Float?
+    var imageUrls: [String]?
+    var videoUrls: [String]?
+    
+    var mediaAspectRatios: [Float]?
     
     var challenge: Challenge?
     var user: User?
     var didLike: Bool? = false
 }
+
 

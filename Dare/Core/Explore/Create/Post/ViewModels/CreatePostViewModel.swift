@@ -38,8 +38,8 @@ class CreatePostViewModel: ObservableObject {
     func createPost(
         title: String?,
         caption: String,
-        image: UIImage?,
-        videoUrl: URL?,
+        images: [UIImage],
+        videoUrls: [URL],
         location: String?,
         type: String?,
         date: Date?,
@@ -49,30 +49,46 @@ class CreatePostViewModel: ObservableObject {
             completion(nil)
             return
         }
-        postUploadService.uploadPost(
-            challengeId: challengeId,
-            title: title,
-            caption: caption,
-            location: location,
-            image: image,
-            videoUrl: videoUrl,
-            challengeType: type,
-            date: date
-        ) { [weak self] post in
-            guard let self = self else { return }
-            if let post = post {
-                self.didUploadPost = true
-                print("DEBUG: Successfully uploaded post")
-                completion(post)
-            } else {
-                print("DEBUG: Failed to upload post")
-                completion(nil)
+
+        var uploadedImageUrls: [String] = []
+        var uploadedVideoUrls: [String] = []
+        
+        let group = DispatchGroup()
+
+        // Upload images
+        for image in images {
+            group.enter()
+            postUploadService.uploadSingleImage(image: image) { url in
+                if let url = url {
+                    uploadedImageUrls.append(url)
+                }
+                group.leave()
             }
         }
-    }
-    
-    func generateThumbnail(url: URL) -> UIImage? {
-        return postUploadService.generateThumbnail(from: url)
+        
+        // Upload videos
+        for videoUrl in videoUrls {
+            group.enter()
+            postUploadService.uploadSingleVideo(videoUrl: videoUrl) { url in
+                if let url = url {
+                    uploadedVideoUrls.append(url)
+                }
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) {
+            self.postUploadService.savePostWithMediaArrays(
+                challengeId: challengeId,
+                title: title,
+                caption: caption,
+                location: location,
+                imageUrls: uploadedImageUrls,
+                videoUrls: uploadedVideoUrls,
+                date: date,
+                completion: completion
+            )
+        }
     }
     
 }

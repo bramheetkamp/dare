@@ -9,6 +9,8 @@ import SwiftUI
 import Kingfisher
 
 struct ChallengeHeaderView: View {
+    
+    @EnvironmentObject private var router: AppRouter
     @ObservedObject var viewModel: ChallengeDetailViewModel
     
     var body: some View {
@@ -18,13 +20,17 @@ struct ChallengeHeaderView: View {
                 .cornerRadius(Style.CornerRadius.small, corners: [.bottomLeft, .bottomRight])
             
             VStack(alignment: .leading, spacing: 8) {
-                VStack(alignment: .center, spacing: 8) {
+                VStack(alignment: .leading, spacing: 8) {
+                    if let emojis = viewModel.challenge?.emojis {
+                        EmojiDisplaySquare(
+                            emojis: emojis,
+                            size: 50
+                        )
+                    }
                     Text(viewModel.challenge?.challenge ?? "")
                         .font(.title2).fontWeight(.black)
                         .foregroundColor(Color.white)
-                    Text(viewModel.challenge?.caption ?? "")
-                        .font(.title3).fontWeight(.black)
-                        .foregroundColor(Color.white)
+                        .lineLimit(2)
                 }
                 .padding(.top, safeAreaTopPadding())
                 
@@ -32,7 +38,7 @@ struct ChallengeHeaderView: View {
                     action: {
                         handleCopyChallenge()
                     },
-                    cornerRadius: Style.CornerRadius.big,
+                    cornerRadius: Style.CornerRadius.small,
                     backgroundColor: Color("secondaryButton")
                 ) {
                     HStack {
@@ -52,7 +58,7 @@ struct ChallengeHeaderView: View {
     }
     
     private func handleCopyChallenge() {
-        print("Copy")
+        router.navigate(to: .createChallenge)
     }
     
     func safeAreaTopPadding() -> CGFloat {

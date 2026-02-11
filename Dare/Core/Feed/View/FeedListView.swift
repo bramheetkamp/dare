@@ -11,13 +11,23 @@ import FirebaseAuth
 struct FeedListView: View {
     
     @EnvironmentObject private var playerManager: PlayerManager
-    
     @StateObject private var feedViewModel: FeedViewModel
+    
     @State private var isFirstLoad = true
     @Binding private var selectedFilter: FeedFilter
     
-    init(postsStore: PostsStore, usersStore: UsersStore, selectedFilter: Binding<FeedFilter>) {
-        _feedViewModel = StateObject(wrappedValue: FeedViewModel(postsStore: postsStore, usersStore: usersStore))
+    init(
+        postsStore: PostsStore,
+        usersStore: UsersStore,
+        challengesStore: ChallengesStore,
+        selectedFilter: Binding<FeedFilter>
+    ) {
+        _feedViewModel = StateObject(wrappedValue:
+                                        FeedViewModel(
+                                            postsStore: postsStore,
+                                            usersStore: usersStore,
+                                            challengesStore: challengesStore
+                                        ))
         self._selectedFilter = selectedFilter
     }
     
@@ -40,7 +50,7 @@ struct FeedListView: View {
                     if feedViewModel.isLoadingPosts && filteredPosts().isEmpty {
                         LoadingIndicatorView()
                     } else if filteredPosts().isEmpty {
-                        EmptyArrayMessageView(message: "No challenges yet in your feed! Start a challenge or follow your friends to see their progress.")
+                        EmptyArrayMessageView(message: "No posts in your feed yet! Start a challenge or follow your friends to see their progress.")
                     } else {
                         PostListView(
                             posts: filteredPosts(),
@@ -54,6 +64,7 @@ struct FeedListView: View {
                 }
                 .padding(.horizontal, 16)
             }
+            .padding(.vertical, 16)
         }
         .withStandardPageStyle(extendView: false)
         .refreshable { refreshFeed() }

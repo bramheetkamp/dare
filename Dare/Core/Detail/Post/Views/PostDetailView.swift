@@ -17,6 +17,8 @@ struct PostDetailView: View {
     
     // MARK: - Properties
     
+    @ObservedObject private var keyboard = KeyboardResponder()
+    
     @StateObject private var postDetailViewModel: PostDetailViewModel
     @StateObject private var commentsViewModel: CommentsViewModel
     @Binding var selectedFilter: PostDetailFilter
@@ -29,7 +31,10 @@ struct PostDetailView: View {
     init(postId: String, postsStore: PostsStore, selectedFilter: Binding<PostDetailFilter>) {
         self._selectedFilter = selectedFilter
         self.postId = postId
-        _postDetailViewModel = StateObject(wrappedValue: PostDetailViewModel(postId: postId, postsStore: postsStore))
+        _postDetailViewModel = StateObject(wrappedValue: PostDetailViewModel(
+            postId: postId,
+            postsStore: postsStore
+        ))
         _commentsViewModel = StateObject(wrappedValue: CommentsViewModel(postId: postId))
     }
     
@@ -42,7 +47,9 @@ struct PostDetailView: View {
                     PostHeaderView(postId: postId)
                     
                     VStack(alignment: .leading, spacing: 16) {
-                        PostContentView(postId: postId)
+                        if let challengeId = postDetailViewModel.post?.challengeId {
+                            PostContentView(postId: postId, challengeId: challengeId)
+                        }
                         
                         sectionHeader("Comments")
                         
@@ -59,15 +66,16 @@ struct PostDetailView: View {
                         }
                     }
                     .padding(.top, 16)
-                    .padding(.bottom, 80)
                     .padding(.horizontal, 16)
+                    .padding(.bottom, 120 + (keyboard.isKeyboardVisible ? 0 : safeAreaBottomPadding()))
                 }
             }
             .refreshable { refreshComments() }
             .onAppear(perform: loadInitialData)
             
-            AddCommentView(viewModel: commentsViewModel)
+            sendButton
         }
+        .ignoresSafeArea(edges: .bottom)
         .withStandardPageStyle()
     }
     
@@ -75,6 +83,48 @@ struct PostDetailView: View {
     
     private func sectionHeader(_ text: String) -> some View {
         HeaderLabelView(text: text)
+    }
+    
+    @ViewBuilder
+    private var sendButton: some View {
+        ZStack(alignment: .bottom) {
+            let baseHeight: CGFloat = 52 + 32
+            let backgroundHeight = baseHeight + (keyboard.isKeyboardVisible ? keyboard.keyboardHeight : safeAreaBottomPadding())
+            
+            Color(.cell)
+                .cornerRadius(Style.CornerRadius.small, corners: [.topLeft, .topRight])
+                .frame(height: backgroundHeight)
+                .frame(maxWidth: .infinity)
+                .ignoresSafeArea(edges: .bottom)
+            
+            HStack(spacing: 8) {
+                CustomTextField(
+                    placeholder: "Write a comment...",
+                    value: $commentsViewModel.newCommentText
+                )
+                
+                InteractiveButtonStack(
+                    action: { commentsViewModel.addComment(text: commentsViewModel.newCommentText) },
+                    cornerRadius: Style.CornerRadius.big,
+                    backgroundColor: commentsViewModel.newCommentText.isEmpty ? Color.gray.opacity(0.1) : Color("primaryButton").opacity(0.1)
+                ) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "paperplane.fill")
+                            .font(.headline)
+                            .foregroundColor(commentsViewModel.newCommentText.isEmpty ? Color("primaryButton").opacity(0.4) : Color("primaryButton"))
+                            .frame(width: 28, height: 28)
+                    }
+                    .contentShape(Circle())
+                }
+                .disabled(commentsViewModel.newCommentText.isEmpty)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .padding(.bottom, (keyboard.isKeyboardVisible ? keyboard.keyboardHeight : safeAreaBottomPadding()) + 16)
+        }
     }
     
     private func loadMoreCommentsIfNeeded(for comment: Comment) {
@@ -102,4 +152,9 @@ struct PostDetailView: View {
             commentsViewModel.fetchComments()
         }
     }
+    
+    func safeAreaBottomPadding() -> CGFloat {
+        UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
+    }
+    
 }

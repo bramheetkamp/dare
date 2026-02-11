@@ -12,6 +12,8 @@ struct PostRowButtonsView: View {
     @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var postsStore: PostsStore
     
+//    @StateObject private var viewModel: PostRowButtonsViewModel
+    
     @State private var isLikeAnimating = false
     
     private let postId: String
@@ -22,6 +24,10 @@ struct PostRowButtonsView: View {
     init(postId: String) {
         self.postId = postId
     }
+//        _viewModel = StateObject(wrappedValue: PostRowButtonsViewModel(
+//            postId: postId,
+//            postsStore: postsStore
+//        ))
 
     var body: some View {
         HStack(spacing: 4) {
@@ -92,7 +98,6 @@ struct PostRowButtonsView: View {
                 .foregroundColor(Color("primaryButton"))
             }
         }
-        .padding(.horizontal, 12)
     }
 
     private func handleLike() {

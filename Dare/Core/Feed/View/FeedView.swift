@@ -12,9 +12,15 @@ struct FeedView: View {
     
     @EnvironmentObject private var postsStore: PostsStore
     @EnvironmentObject private var usersStore: UsersStore
+    @EnvironmentObject private var challengesStore: ChallengesStore
     @State private var selectedFilter: FeedFilter = .all
 
     var body: some View {
-        FeedListView(postsStore: postsStore, usersStore: usersStore, selectedFilter: $selectedFilter)
+        FeedListView(
+            postsStore: postsStore,
+            usersStore: usersStore,
+            challengesStore: challengesStore,
+            selectedFilter: $selectedFilter
+        )
     }
 }

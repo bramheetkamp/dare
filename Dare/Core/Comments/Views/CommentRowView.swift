@@ -29,7 +29,7 @@ struct CommentRowView: View {
                 .foregroundColor(Color("detailText"))
             
         }
-        .padding()
+        .padding(16)
         .background(Color("cell"))
         .cornerRadius(Style.CornerRadius.small)
     }

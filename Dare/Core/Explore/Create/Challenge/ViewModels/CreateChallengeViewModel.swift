@@ -8,11 +8,13 @@
 import SwiftUI
 
 class CreateChallengeViewModel: ObservableObject {
+    
     let service = ChallengeService()
     
-    func createChallenge(title: String, description: String, completion: @escaping (Challenge?) -> Void) {
-        service.postChallenge(challenge: title, caption: description) { challenge in
+    func createChallenge(title: String, description: String, emojis: [String], completion: @escaping (Challenge?) -> Void) {
+        service.postChallenge(challenge: title, caption: description, emojis: emojis) { challenge in
             completion(challenge)
         }
     }
+
 }

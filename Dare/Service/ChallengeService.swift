@@ -12,14 +12,15 @@ import AVFoundation
 
 struct ChallengeService {
     
-    func postChallenge(challenge: String, caption: String, completion: @escaping (Challenge?) -> Void) {
+    func postChallenge(challenge: String, caption: String, emojis: [String], completion: @escaping (Challenge?) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let documentRef = Firestore.firestore().collection("challenges").document()
         let data: [String: Any] = [
             "uid": uid,
             "caption": caption.trimmingCharacters(in: .whitespaces),
             "timestamp": Timestamp(date: Date()),
-            "challenge": challenge.trimmingCharacters(in: .whitespaces)
+            "challenge": challenge.trimmingCharacters(in: .whitespaces),
+            "emojis": emojis
         ]
         
         documentRef.setData(data) { error in

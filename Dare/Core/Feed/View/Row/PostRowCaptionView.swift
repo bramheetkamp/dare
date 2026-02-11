@@ -39,7 +39,6 @@ struct PostRowCaptionView: View {
                 }
             }
         }
-        .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

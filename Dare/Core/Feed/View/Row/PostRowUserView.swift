@@ -14,6 +14,8 @@ struct PostRowUserView: View {
     @EnvironmentObject private var postsStore: PostsStore
     @EnvironmentObject private var usersStore: UsersStore
     
+    @StateObject private var viewModel: PostRowUserViewModel
+    
     var postId: String
     var post: PublicPost? {
         postsStore.post(withId: postId)
@@ -24,9 +26,13 @@ struct PostRowUserView: View {
         usersStore.user(withId: userId)
     }
     
-    init(postId: String, userId: String) {
+    init(postId: String, userId: String, usersStore: UsersStore) {
         self.postId = postId
         self.userId = userId
+        _viewModel = StateObject(wrappedValue: PostRowUserViewModel(
+            userId: userId,
+            usersStore: usersStore
+        ))
     }
     
     var body: some View {
@@ -64,6 +70,5 @@ struct PostRowUserView: View {
         .buttonStyle(PlainButtonStyle())
         .contentShape(Rectangle())
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 10)
     }
 }

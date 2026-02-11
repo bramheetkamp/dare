@@ -37,20 +37,7 @@ struct PostFetchService {
             }
 
             var posts = snapshot.documents.compactMap { try? $0.data(as: PublicPost.self) }
-            let group = DispatchGroup()
-
-            for (index, post) in posts.enumerated() {
-                guard let challengeId = post.challengeId else { continue }
-                group.enter()
-                ChallengeService().fetchChallenge(challengeId: challengeId) { challenge in
-                    posts[index].challenge = challenge
-                    group.leave()
-                }
-            }
-
-            group.notify(queue: .main) {
-                completion(posts, snapshot.documents.last)
-            }
+            completion(posts, snapshot.documents.last)
         }
     }
 
@@ -150,39 +137,26 @@ struct PostFetchService {
                 group.leave()
             }
         }
-
+        
         group.notify(queue: .main) {
             if let error = fetchError {
                 print("Error fetching feed posts: \(error.localizedDescription)")
                 completion([], nil)
                 return
             }
-
+            
             let sortedPosts = allPosts.sorted { $0.timestamp.dateValue() > $1.timestamp.dateValue() }
             let limitedPosts = Array(sortedPosts.prefix(limit))
-
-            let challengeGroup = DispatchGroup()
-            var postsWithChallenges = limitedPosts
-            for (index, post) in postsWithChallenges.enumerated() {
-                guard let challengeId = post.challengeId else { continue }
-                challengeGroup.enter()
-                ChallengeService().fetchChallenge(challengeId: challengeId) { challenge in
-                    postsWithChallenges[index].challenge = challenge
-                    challengeGroup.leave()
-                }
-            }
-
-            challengeGroup.notify(queue: .main) {
-                let lastDoc = allDocuments.sorted { doc1, doc2 in
-                    let ts1 = doc1.get("timestamp") as? Timestamp ?? Timestamp(date: Date.distantPast)
-                    let ts2 = doc2.get("timestamp") as? Timestamp ?? Timestamp(date: Date.distantPast)
-                    return ts1.dateValue() > ts2.dateValue()
-                }.prefix(limit).last
-                completion(postsWithChallenges, lastDoc)
-            }
+            
+            let lastDoc = allDocuments.sorted { doc1, doc2 in
+                let ts1 = doc1.get("timestamp") as? Timestamp ?? Timestamp(date: Date.distantPast)
+                let ts2 = doc2.get("timestamp") as? Timestamp ?? Timestamp(date: Date.distantPast)
+                return ts1.dateValue() > ts2.dateValue()
+            }.prefix(limit).last
+            completion(limitedPosts, lastDoc)
         }
     }
-
+    
     func fetchPost(_ postId: String, completion: @escaping (PublicPost?) -> Void) {
         postDocument(postId).getDocument { snapshot, error in
             if let error = error {
@@ -198,19 +172,7 @@ struct PostFetchService {
             }
 
             do {
-                var post = try snapshot.data(as: PublicPost.self)
-                guard let challengeId = post.challengeId else {
-                    completion(post)
-                    return
-                }
-
-                ChallengeService().fetchChallenge(challengeId: challengeId) { challenge in
-                    UserService().fetchUser(withUid: post.uid) { user in
-                        post.user = user
-                        post.challenge = challenge
-                        completion(post)
-                    }
-                }
+                completion(try snapshot.data(as: PublicPost.self))
             } catch {
                 print("Error decoding post: \(error.localizedDescription)")
                 completion(nil)

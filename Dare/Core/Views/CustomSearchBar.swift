@@ -1,13 +1,13 @@
 //
-//  SearchBar.swift
-//  
+//  CustomSearchBar.swift
+//
 //
 //  Created by Bram Heetkamp on 29/10/24.
 //
 
 import SwiftUI
 
-struct SearchBar: View {
+struct CustomSearchBar: View {
     @Binding var text: String
     @FocusState var isFocused: Bool
 
@@ -28,7 +28,7 @@ struct SearchBar: View {
     }
 }
 
-struct SearchBarStyle: ViewModifier {
+struct CustomSearchBarStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .overlay(
@@ -38,8 +38,8 @@ struct SearchBarStyle: ViewModifier {
     }
 }
 
-struct SearchBar_Previews: PreviewProvider {
+struct CustomSearchBar_Previews: PreviewProvider {
     static var previews: some View {
-        SearchBar(text: .constant(""))
+        CustomSearchBar(text: .constant(""))
     }
 }

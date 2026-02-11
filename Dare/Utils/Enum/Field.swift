@@ -8,5 +8,5 @@
 import Foundation
 
 enum Field: Hashable {
-    case challenge, caption, location, challengeType, date
+    case challenge, caption, location, challengeType, date, title
 }

@@ -17,6 +17,7 @@ struct Challenge: Identifiable, Decodable, Equatable, Hashable {
     
     var updates: Int?
     var imageUrl: String?
+    var emojis: [String]?
     
     var user: User?
 }

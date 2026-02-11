@@ -27,9 +27,9 @@ struct CreatePostView: View {
     @State private var challenge = ""
     @State private var title = ""
     @State private var caption = ""
-    @State private var selectedImage: UIImage? = nil
-    @State private var selectedVideoURL: URL? = nil
-    @State private var selectedItem: [PhotosPickerItem] = []
+    @State private var selectedImages: [UIImage] = []
+    @State private var selectedVideoURLs: [URL] = []
+    @State private var selectedItems: [PhotosPickerItem] = []
     @State private var player = AVPlayer(url: URL(string: "https://swiftanytime-content.s3.ap-south-1.amazonaws.com/SwiftUI-Beginner/Video-Player/iMacAdvertisement.mp4")!)
     
     @State private var location = ""
@@ -73,32 +73,62 @@ struct CreatePostView: View {
     // MARK: - View Components
     
     private var infoSection: some View {
-        InformationView(information: "Only your followers can see your challenge.")
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Update is part of challenge")
+                    .font(.caption)
+                    .opacity(0.8)
+                Text(viewModel.challenge?.challenge ?? "-")
+                    .lineLimit(1)
+                    .font(.subheadline)
+            }
+
+            Spacer()
+            
+            if ((viewModel.challenge?.emojis) != nil) {
+                EmojiDisplaySquare(emojis: (viewModel.challenge?.emojis)!, size: 50)
+            }
+        }
+        .foregroundStyle(.headerText)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(.cell)
+        .cornerRadius(Style.CornerRadius.small)
     }
     
     private var captionSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            ChallengeEditorView(
-                placeholder: "Amazing experience!",
-                value: $title
+            HeaderLabelView(text: "Tell more about it.", size: .title3)
+            CustomTextField(
+                placeholder: "Morning post",
+                value: $title,
+                focus: $focusedField,
+                focusField: .title
             )
+            .focused($focusedField, equals: .title)
+            .onSubmit {
+                focusedField = .caption
+            }
             
-            HeaderLabelView(text: "How was it?", size: .title3)
-            ChallengeEditorView(
-                placeholder: "My dad and my friends were cheering me on along the way!",
-                value: $caption
+            CustomTextEditor(
+                placeholder: "What did you see? How was it?",
+                value: $caption,
+                focus: $focusedField,
+                focusField: .caption
             )
+            .focused($focusedField, equals: .caption)
+            .onSubmit {
+                focusedField = nil
+            }
         }
     }
     
     private var extraInfoSection: some View {
         VStack(alignment: .leading) {
-            HeaderLabelView(text: "Extra Information", size: .title3)
+            HeaderLabelView(text: "Details", size: .title3)
             
             VStack(spacing: 16) {
                 LocationSearchView(location: $location)
-                
-                datePickerView
             }
         }
     }
@@ -126,46 +156,19 @@ struct CreatePostView: View {
     private var submissionSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HeaderLabelView(text: "Submission", size: .title3)
-            
-            Text("Add a photo or video")
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            PhotosPicker(
-                selection: $selectedItem,
-                maxSelectionCount: 1,
-                matching: .any(of: [.images, .videos])
-            ) {
-                HStack {
-                    Image(systemName: "plus.circle")
-                        .foregroundColor(.white)
-                    Text("Choose media")
-                        .foregroundColor(.white)
-                        .fontWeight(.semibold)
-                }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .cornerRadius(Style.CornerRadius.small)
-            }
-            .onChange(of: selectedItem) {
-                handleMediaSelection()
-            }
-            
-            mediaPreviewView()
+            MediaSelectionView(
+                selectedImages: $selectedImages,
+                selectedVideos: $selectedVideoURLs
+            )
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.cell)
-        .cornerRadius(Style.CornerRadius.small)
     }
     
     private var sendButton: some View {
         ZStack(alignment: .bottom) {
-            let baseHeight: CGFloat = 60 + 32
+            let baseHeight: CGFloat = 52 + 32
             let backgroundHeight = baseHeight + (keyboard.isKeyboardVisible ? keyboard.keyboardHeight : safeAreaBottomPadding())
             
-            Color("secondaryButton")
+            Color(.cell)
                 .cornerRadius(Style.CornerRadius.small, corners: [.topLeft, .topRight])
                 .frame(height: backgroundHeight)
                 .frame(maxWidth: .infinity)
@@ -173,21 +176,20 @@ struct CreatePostView: View {
             
             InteractiveButton(
                 action: sendPost,
-                backgroundColor: .primaryButton,
+                backgroundColor: .primaryButton.opacity(0.1),
                 cornerRadius: Style.CornerRadius.small,
                 padding: 16,
                 scaleEffect: true,
-                height: 60,
+                height: 52,
             ) {
                 HStack {
                     Text("Create")
                         .font(.system(size: Style.FontSize.medium, weight: .semibold))
-                        .foregroundColor(Color.white)
                     Spacer()
                     Image(systemName: "plus")
                         .font(.system(size: Style.FontSize.medium, weight: .bold))
-                        .foregroundColor(Color.white)
                 }
+                .foregroundColor(.primaryButton)
             }
             .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .padding(.horizontal, 16)
@@ -196,62 +198,15 @@ struct CreatePostView: View {
         }
     }
     
-    // MARK: - Media Handling
-    
-    private func handleMediaSelection() {
-        Task {
-            guard let item = selectedItem.first else { return }
-            if let data = try? await item.loadTransferable(type: Data.self),
-               let image = UIImage(data: data) {
-                selectedImage = image
-                selectedVideoURL = nil
-                player = AVPlayer()
-            } else {
-                item.loadTransferable(type: Movie.self) { result in
-                    switch result {
-                    case .success(let movie):
-                        if let movie = movie {
-                            selectedVideoURL = movie.url
-                            selectedImage = nil
-                            player = AVPlayer(url: movie.url)
-                        }
-                    case .failure(let error):
-                        print("Failed to load video: \(error)")
-                    }
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private func mediaPreviewView() -> some View {
-        if let image = selectedImage {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFit()
-                .frame(
-                    maxWidth: UIScreen.main.bounds.width * 0.9,
-                    maxHeight: UIScreen.main.bounds.height * 0.5
-                )
-        } else if let url = selectedVideoURL,
-                  let thumbnailImage = viewModel.generateThumbnail(url: url) {
-            let aspectRatio = thumbnailImage.size.width / thumbnailImage.size.height
-            VideoPlayer(player: player)
-                .aspectRatio(aspectRatio, contentMode: .fit)
-                .frame(maxWidth: UIScreen.main.bounds.width * 0.9)
-        } else {
-            EmptyView()
-        }
-    }
-    
     // MARK: - Actions
     
     private func sendPost() {
+        print("test \(selectedImages) \(selectedVideoURLs)")
         viewModel.createPost(
             title: title,
             caption: caption,
-            image: selectedImage,
-            videoUrl: selectedVideoURL,
+            images: selectedImages,
+            videoUrls: selectedVideoURLs,
             location: location,
             type: challengeType,
             date: selectedDate
@@ -265,4 +220,5 @@ struct CreatePostView: View {
     func safeAreaBottomPadding() -> CGFloat {
         UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
     }
+    
 }

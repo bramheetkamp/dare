@@ -9,37 +9,6 @@ import SwiftUI
 import Kingfisher
 import AVKit
 
-struct VideoPlayerView: UIViewControllerRepresentable {
-    let url: URL
-    let isVisible: Bool
-    @Binding var currentPlayerID: String?
-    let postID: String
-    
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let controller = AVPlayerViewController()
-        controller.player = AVPlayer(url: url)
-        controller.showsPlaybackControls = true
-        return controller
-    }
-    
-    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
-        guard let player = uiViewController.player else { return }
-        
-        if isVisible && currentPlayerID != postID {
-            currentPlayerID = postID
-            player.play()
-        } else if !isVisible && currentPlayerID == postID {
-            player.pause()
-            currentPlayerID = nil
-        }
-    }
-    
-    static func dismantleUIViewController(_ uiViewController: AVPlayerViewController, coordinator: ()) {
-        uiViewController.player?.pause()
-        uiViewController.player = nil
-    }
-}
-
 struct PostRowContentView: View {
     
     @EnvironmentObject private var postsStore: PostsStore
@@ -59,33 +28,75 @@ struct PostRowContentView: View {
     
     var body: some View {
         if let post = post {
-            if let videoUrlString = post.videoUrl,
-               let url = URL(string: videoUrlString) {
-                VideoPlayerView(
-                    url: url,
-                    isVisible: isVisible,
-                    currentPlayerID: $playerManager.currentPlayerID,
-                    postID: post.id!
-                )
-                .padding(.horizontal, 10)
-                .aspectRatio(CGFloat(post.mediaAspectRatio ?? (16.0 / 9.0)), contentMode: .fit)
-                .cornerRadius(Style.CornerRadius.small)
-                .onDisappear {
-                    if playerManager.currentPlayerID == post.id! {
-                        playerManager.currentPlayerID = nil
-                    }
-                }
-            } else if let imageUrlString = post.imageUrl, !imageUrlString.isEmpty {
-                KFImage(URL(string: imageUrlString))
-                    .resizable()
-                    .aspectRatio(CGFloat(post.mediaAspectRatio ?? (4.0 / 3.0)), contentMode: .fit)
-                    .cornerRadius(Style.CornerRadius.small)
-                    .padding(.horizontal, 10)
-            } else {
+            let hasImages = (post.imageUrls?.isEmpty == false)
+            let hasVideos = (post.videoUrls?.isEmpty == false)
+            
+            if !hasImages && !hasVideos {
                 EmptyView()
+            } else if hasImages && !hasVideos {
+                if post.imageUrls!.count == 1, let url = URL(string: post.imageUrls![0]) {
+                    KFImage(url)
+                        .resizable()
+                        .aspectRatio(CGFloat(post.mediaAspectRatios?.first ?? (4.0 / 3.0)), contentMode: .fit)
+                        .cornerRadius(Style.CornerRadius.small)
+                } else {
+                    multipleMediaScrollView(imageUrls: post.imageUrls ?? [], videoUrls: [], aspectRatios: post.mediaAspectRatios)
+                }
+            } else if !hasImages && hasVideos {
+                if post.videoUrls!.count == 1, let url = URL(string: post.videoUrls![0]) {
+                    singleVideoView(url: url, aspectRatio: post.mediaAspectRatios?.first ?? (16.0 / 9.0))
+                } else {
+                    multipleMediaScrollView(imageUrls: [], videoUrls: post.videoUrls ?? [], aspectRatios: post.mediaAspectRatios)
+                }
+            } else {
+                multipleMediaScrollView(imageUrls: post.imageUrls ?? [], videoUrls: post.videoUrls ?? [], aspectRatios: post.mediaAspectRatios)
             }
         } else {
             EmptyView()
         }
+    }
+    
+    @ViewBuilder
+    private func singleVideoView(url: URL, aspectRatio: Float) -> some View {
+        VideoPlayerView(
+            url: url,
+            isVisible: isVisible,
+            currentPlayerID: $playerManager.currentPlayerID,
+            postID: postId
+        )
+        .aspectRatio(CGFloat(aspectRatio), contentMode: .fit)
+        .cornerRadius(Style.CornerRadius.small)
+        .onDisappear {
+            if playerManager.currentPlayerID == postId {
+                playerManager.currentPlayerID = nil
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func multipleMediaScrollView(imageUrls: [String], videoUrls: [String], aspectRatios: [Float]?) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(imageUrls, id: \.self) { urlString in
+                    if let url = URL(string: urlString) {
+                        KFImage(url)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
+                            .clipped()
+                            .cornerRadius(8)
+                    }
+                }
+                
+                ForEach(videoUrls, id: \.self) { urlString in
+                    if let url = URL(string: urlString) {
+                        VideoThumbnailView(videoURL: url)
+                            .frame(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
+                            .cornerRadius(8)
+                    }
+                }
+            }
+        }
+        .frame(height: UIScreen.main.bounds.width / 3)
     }
 }

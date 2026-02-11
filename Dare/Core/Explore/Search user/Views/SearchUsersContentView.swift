@@ -13,6 +13,7 @@ struct SearchUsersContentView: View {
     
     @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var usersStore: UsersStore
+    @ObservedObject private var keyboard = KeyboardResponder()
     
     @StateObject private var viewModel: SearchUsersViewModel
     @FocusState private var isSearchFocused: Bool
@@ -28,7 +29,7 @@ struct SearchUsersContentView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                SearchBar(text: $usersStore.searchFriendsTerm, isFocused: _isSearchFocused)
+                CustomSearchBar(text: $usersStore.searchFriendsTerm, isFocused: _isSearchFocused)
                     .onChange(of: usersStore.searchFriendsTerm) {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                             viewModel.fetchUsers()
@@ -38,7 +39,7 @@ struct SearchUsersContentView: View {
                 contentView
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 80)
+            .padding(.bottom, (keyboard.isKeyboardVisible ? keyboard.keyboardHeight : safeAreaBottomPadding()) + 16)
         }
         .refreshable {
             withAnimation {
@@ -93,4 +94,9 @@ struct SearchUsersContentView: View {
             viewModel.fetchUsers()
         }
     }
+    
+    func safeAreaBottomPadding() -> CGFloat {
+        UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
+    }
+    
 }

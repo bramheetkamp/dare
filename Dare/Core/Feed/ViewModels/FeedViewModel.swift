@@ -42,10 +42,16 @@ class FeedViewModel: ObservableObject {
 
     private let postsStore: PostsStore
     private let usersStore: UsersStore
+    private let challengesStore: ChallengesStore
 
-    init(postsStore: PostsStore, usersStore: UsersStore) {
+    init(
+        postsStore: PostsStore,
+        usersStore: UsersStore,
+        challengesStore: ChallengesStore
+    ) {
         self.postsStore = postsStore
         self.usersStore = usersStore
+        self.challengesStore = challengesStore
         fetchPosts()
     }
 
@@ -75,15 +81,9 @@ class FeedViewModel: ObservableObject {
                 var newPosts = newPosts
                 for index in 0 ..< newPosts.count {
                     group.enter()
-                    self.userService.fetchUser(withUid: newPosts[index].uid) { user in
-                        self.postLikeService.checkIsUserLikedPost(newPosts[index]) { didLike in
-                            newPosts[index].didLike = didLike
-                            if let user = user {
-                                self.usersStore.insertOrUpdate([user])
-                            }
-
-                            group.leave()
-                        }
+                    self.postLikeService.checkIsUserLikedPost(newPosts[index]) { didLike in
+                        newPosts[index].didLike = didLike
+                        group.leave()
                     }
                 }
 

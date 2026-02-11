@@ -57,4 +57,17 @@ extension View {
         }
     }
     
+    @ViewBuilder
+    func ifLet<T, U>(
+        _ value: T?,
+        _ second: U?,
+        apply: (Self, T, U) -> some View
+    ) -> some View {
+        if let value = value, let second = second {
+            apply(self, value, second)
+        } else {
+            self
+        }
+    }
+    
 }
