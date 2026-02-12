@@ -48,6 +48,14 @@ struct MainTabView: View {
                         Image(systemName: "person.fill")
                     }.tag(2)
             }
+            
+            TestFeed()
+                .onTapGesture {
+                    self.selectedIndex = 3
+                }
+                .tabItem {
+                    Image(systemName: "magnifyingglass")
+                }.tag(3)
         }
         .accentColor(Color("primaryButton"))
     }

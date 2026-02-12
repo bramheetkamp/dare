@@ -28,16 +28,9 @@ struct PostListView: View {
                     )
                     .onAppear {
                         onPostAppear(publicPost)
-                        playerManager.currentPlayerID = publicPost.id
-                    }
-                    .onDisappear {
-                        if playerManager.currentPlayerID == publicPost.id {
-                            playerManager.currentPlayerID = nil
-                        }
                     }
                 }
             }
         }
     }
 }
-
