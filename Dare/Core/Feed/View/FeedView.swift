@@ -14,13 +14,15 @@ struct FeedView: View {
     @EnvironmentObject private var usersStore: UsersStore
     @EnvironmentObject private var challengesStore: ChallengesStore
     @State private var selectedFilter: FeedFilter = .all
+    @State private var currentIndex: Int? = 0
 
     var body: some View {
         FeedListView(
             postsStore: postsStore,
             usersStore: usersStore,
             challengesStore: challengesStore,
-            selectedFilter: $selectedFilter
+            selectedFilter: $selectedFilter,
+            currentIndex: $currentIndex
         )
     }
 }

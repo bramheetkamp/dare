@@ -70,7 +70,7 @@ struct PostRowChallengeView: View {
                 }
             }
             .padding(16)
-            .background(Color("background"))
+            .background(Color("background").opacity(0.5))
             .cornerRadius(Style.CornerRadius.small)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

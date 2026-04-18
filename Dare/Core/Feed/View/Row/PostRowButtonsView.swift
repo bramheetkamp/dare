@@ -11,8 +11,9 @@ struct PostRowButtonsView: View {
     
     @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var postsStore: PostsStore
+    @EnvironmentObject private var challengesStore: ChallengesStore
     
-//    @StateObject private var viewModel: PostRowButtonsViewModel
+    @StateObject private var viewModel: PostRowChallengeViewModel
     
     @State private var isLikeAnimating = false
     
@@ -21,22 +22,36 @@ struct PostRowButtonsView: View {
         postsStore.post(withId: postId)
     }
     
-    init(postId: String) {
-        self.postId = postId
+    var challengeId: String
+    var challenge: Challenge? {
+        challengesStore.challenge(withId: challengeId)
     }
-//        _viewModel = StateObject(wrappedValue: PostRowButtonsViewModel(
-//            postId: postId,
-//            postsStore: postsStore
-//        ))
-
+    
+    let onLikeHandlerReady: ((@escaping () -> Void) -> Void)?
+    
+    init(
+        postId: String,
+        challengeId: String,
+        challengesStore: ChallengesStore,
+        onLikeHandlerReady: ((@escaping () -> Void) -> Void)? = nil
+    ) {
+        self.postId = postId
+        self.challengeId = challengeId
+        self.onLikeHandlerReady = onLikeHandlerReady
+        _viewModel = StateObject(wrappedValue: PostRowChallengeViewModel(
+            challengeId: challengeId,
+            challengesStore: challengesStore
+        ))
+    }
+    
     var body: some View {
-        HStack(spacing: 4) {
+        VStack(spacing: 14) {
             // Likes
             InteractiveButtonStack(
                 action: { handleLike() },
                 cornerRadius: 36 / 2,
             ) {
-                HStack(spacing: 8) {
+                VStack(spacing: 8) {
                     ZStack {
                         Circle()
                             .fill((post?.didLike ?? false) ?
@@ -46,17 +61,17 @@ struct PostRowButtonsView: View {
                             .font(.title2)
                             .scaleEffect(isLikeAnimating ? 1.3 : 1.0)
                             .animation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0.2),
-                                     value: isLikeAnimating)
+                                       value: isLikeAnimating)
                     }
                     .contentShape(Circle())
-
-                    Text("\(post?.likes ?? 0)")
+                    
+                    Text((post?.likes ?? 0).toAbbreviatedCount())
                         .font(.subheadline)
                         .foregroundColor(Color("detailText"))
-                        .frame(minWidth: 30, alignment: .leading)
+                        .frame(minWidth: 30, alignment: .center)
                 }
             }
-
+            
             // Comments
             InteractiveButtonStack(
                 action: {
@@ -65,7 +80,7 @@ struct PostRowButtonsView: View {
                 },
                 cornerRadius: 36 / 2,
             ) {
-                HStack(spacing: 8) {
+                VStack(spacing: 8) {
                     ZStack {
                         Circle()
                             .fill(Color.gray.opacity(0.2))
@@ -76,33 +91,42 @@ struct PostRowButtonsView: View {
                     .contentShape(Circle())
                 }
             }
-
-            Spacer()
-
+            
             // See more
             InteractiveButtonStack(
                 action: {
-                    guard let postId = post?.id else { return }
-                    router.navigate(to: .postDetail(postId: postId))
+                    guard let challengeId = post?.challengeId else { return }
+                    router.navigate(to: .challengeDetail(challengeId: challengeId))
                 },
                 cornerRadius: Style.CornerRadius.small,
-                backgroundColor: Color("primaryButton").opacity(0.1)
             ) {
-                HStack(spacing: 6) {
-                    Text("See more")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+                if let emojis = viewModel.challenge?.emojis {
+                    ZStack {
+                        Circle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        EmojiDisplaySquare(
+                            emojis: emojis,
+                            size: 32
+                        )
+                    }
+                } else {
                     Image(systemName: "chevron.right")
-                        .font(.caption)
+                        .font(.headline)
+                        .frame(width: 44, height: 44)
+                        .background(Color("primaryButton").opacity(0.15))
+                        .clipShape(Circle())
                 }
-                .foregroundColor(Color("primaryButton"))
             }
         }
+        .onAppear {
+            onLikeHandlerReady?(handleLike)
+        }
     }
-
+    
     private func handleLike() {
         guard !isLikeAnimating, (post?.didLike ?? false) == false else { return }
-
+        
         withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
             isLikeAnimating = true
         }
@@ -113,5 +137,4 @@ struct PostRowButtonsView: View {
             }
         }
     }
-
 }

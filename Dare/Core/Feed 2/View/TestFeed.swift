@@ -87,7 +87,7 @@ struct TestFeed: View {
 
     private var currentHeaderTitle: String {
         if currentIndex == 0 { return greetingMessage}
-        return allItems[safe: (currentIndex ?? 1) - 1]?.section.headerTitle ?? ""
+        return "Submissions"
     }
 }
 

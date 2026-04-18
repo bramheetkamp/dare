@@ -15,12 +15,26 @@ struct FeedListView: View {
     
     @State private var isFirstLoad = true
     @Binding private var selectedFilter: FeedFilter
+    @Binding private var currentIndex: Int?
+    
+    private var greetingMessage: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        if hour < 12 { return "Good morning" }
+        if hour < 18 { return "Good afternoon" }
+        return "Good evening"
+    }
+
+    private var currentHeaderTitle: String {
+        if currentIndex == 0 { return greetingMessage}
+        return "Submissions"
+    }
     
     init(
         postsStore: PostsStore,
         usersStore: UsersStore,
         challengesStore: ChallengesStore,
-        selectedFilter: Binding<FeedFilter>
+        selectedFilter: Binding<FeedFilter>,
+        currentIndex: Binding<Int?>
     ) {
         _feedViewModel = StateObject(wrappedValue:
                                         FeedViewModel(
@@ -29,47 +43,59 @@ struct FeedListView: View {
                                             challengesStore: challengesStore
                                         ))
         self._selectedFilter = selectedFilter
+        self._currentIndex = currentIndex
     }
     
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 16) {
-                if !feedViewModel.challenges.isEmpty {
-                    sectionHeader("Your challenges")
-                        .padding(.horizontal, 16)
-                    
-                    FeedChallengeListView(
-                        challenges: feedViewModel.challenges,
-                        onChallengeAppear: loadMoreChallengesIfNeeded
-                    )
-                }
-                
-                VStack(alignment: .leading, spacing: 16) {
-                    sectionHeader("Feed")
-                    
-                    if feedViewModel.isLoadingPosts && filteredPosts().isEmpty {
-                        LoadingIndicatorView()
-                    } else if filteredPosts().isEmpty {
-                        EmptyArrayMessageView(message: "No posts in your feed yet! Start a challenge or follow your friends to see their progress.")
-                    } else {
-                        PostListView(
-                            posts: filteredPosts(),
-                            onPostAppear: loadMorePostsIfNeeded
-                        )
+        GeometryReader { geo in
+            ZStack(alignment: .top) {
+                ScrollView(.vertical) {
+                    LazyVStack(spacing: 0) {
+                        FeedIntroductionView(challenges: feedViewModel.challenges,
+                                             onChallengeAppear: loadMoreChallengesIfNeeded)
+                        .containerRelativeFrame(.vertical)
+                        .id(0)
+                        
+                        ForEach(
+                            Array(filteredPosts().enumerated()),
+                            id: \.element.id
+                        ) {
+                            index,
+                            publicPost in
+                            FeedPostView(
+                                postId: publicPost.id!,
+                                challengeId: publicPost.challengeId!,
+                                userId: publicPost.uid,
+                                isVisible: playerManager.currentPlayerID == publicPost.id,
+                                showChallengeView: true,
+                                bottomInset: geo.safeAreaInsets.bottom
+                            )
+                            .onAppear {
+                                loadMorePostsIfNeeded(for: publicPost)
+                            }
+                            .containerRelativeFrame(.vertical)
+                            .id(index + 1)
+                        }
                     }
-                    
-                    if feedViewModel.isLoadingPosts && !filteredPosts().isEmpty {
-                        LoadingIndicatorView()
-                    }
                 }
-                .padding(.horizontal, 16)
+                .refreshable { refreshFeed() }
+                .onAppear(perform: loadInitialData)
+                .onDisappear { playerManager.currentPlayerID = nil }
+                .scrollIndicators(.hidden)
+                .scrollTargetLayout()
+                .scrollTargetBehavior(.paging)
+                .scrollPosition(id: $currentIndex)
+                .ignoresSafeArea()
+
+                // Fixed header (always below the notch)
+                HeaderView(title: currentHeaderTitle)
+                    .padding(.top, geo.safeAreaInsets.top + 10)
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, alignment: .top)
             }
-            .padding(.vertical, 16)
+            .background(.black)
+            .ignoresSafeArea()
         }
-        .withStandardPageStyle(extendView: false)
-        .refreshable { refreshFeed() }
-        .onAppear(perform: loadInitialData)
-        .onDisappear { playerManager.currentPlayerID = nil }
     }
     
     // MARK: - Private Helpers

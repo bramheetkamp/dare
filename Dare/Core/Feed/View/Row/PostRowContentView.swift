@@ -14,6 +14,8 @@ struct PostRowContentView: View {
     @EnvironmentObject private var postsStore: PostsStore
     @EnvironmentObject private var playerManager: PlayerManager
     
+    @State private var selectedMediaIndex: Int = 0
+    
     var isVisible: Bool
     var postId: String
     
@@ -35,10 +37,17 @@ struct PostRowContentView: View {
                 EmptyView()
             } else if hasImages && !hasVideos {
                 if post.imageUrls!.count == 1, let url = URL(string: post.imageUrls![0]) {
-                    KFImage(url)
-                        .resizable()
-                        .aspectRatio(CGFloat(post.mediaAspectRatios?.first ?? (4.0 / 3.0)), contentMode: .fit)
-                        .cornerRadius(Style.CornerRadius.small)
+                    HStack {
+                        Spacer()
+                        KFImage(url)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: UIScreen.main.bounds.width * (2/3),
+                                   height: UIScreen.main.bounds.width * (2/3))
+                            .clipped()
+                            .cornerRadius(20)
+                        Spacer()
+                    }
                 } else {
                     multipleMediaScrollView(imageUrls: post.imageUrls ?? [], videoUrls: [], aspectRatios: post.mediaAspectRatios)
                 }
@@ -64,13 +73,55 @@ struct PostRowContentView: View {
             currentPlayerID: $playerManager.currentPlayerID,
             postID: postId
         )
-        .aspectRatio(CGFloat(aspectRatio), contentMode: .fit)
-        .cornerRadius(Style.CornerRadius.small)
+        .scaledToFill()
+        .frame(width: UIScreen.main.bounds.width * (2/3),
+               height: UIScreen.main.bounds.width * (2/3))
+        .aspectRatio(1, contentMode: .fit)
+        .cornerRadius(20)
         .onDisappear {
             if playerManager.currentPlayerID == postId {
                 playerManager.currentPlayerID = nil
             }
         }
+    }
+    
+    private struct MediaItem: Identifiable {
+        enum MediaType {
+            case image(URL)
+            case video(URL)
+        }
+
+        let id = UUID()
+        let type: MediaType
+        let aspectRatio: Float
+    }
+
+    private func buildMediaItems(
+        imageUrls: [String],
+        videoUrls: [String],
+        aspectRatios: [Float]?
+    ) -> [MediaItem] {
+
+        var items: [MediaItem] = []
+        var index = 0
+
+        for urlString in imageUrls {
+            if let url = URL(string: urlString) {
+                let ratio = aspectRatios?[safe: index] ?? (4.0 / 3.0)
+                items.append(MediaItem(type: .image(url), aspectRatio: ratio))
+                index += 1
+            }
+        }
+
+        for urlString in videoUrls {
+            if let url = URL(string: urlString) {
+                let ratio = aspectRatios?[safe: index] ?? (16.0 / 9.0)
+                items.append(MediaItem(type: .video(url), aspectRatio: ratio))
+                index += 1
+            }
+        }
+
+        return items
     }
     
     @ViewBuilder
@@ -82,21 +133,22 @@ struct PostRowContentView: View {
                         KFImage(url)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
+                            .frame(width: UIScreen.main.bounds.width * (2/3),
+                                   height: UIScreen.main.bounds.width * (2/3))
                             .clipped()
-                            .cornerRadius(8)
+                            .cornerRadius(20)
                     }
                 }
                 
                 ForEach(videoUrls, id: \.self) { urlString in
                     if let url = URL(string: urlString) {
                         VideoThumbnailView(videoURL: url)
-                            .frame(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
-                            .cornerRadius(8)
+                            .frame(width: UIScreen.main.bounds.width * (2/3),
+                                   height: UIScreen.main.bounds.width * (2/3))
+                            .cornerRadius(20)
                     }
                 }
             }
         }
-        .frame(height: UIScreen.main.bounds.width / 3)
     }
 }

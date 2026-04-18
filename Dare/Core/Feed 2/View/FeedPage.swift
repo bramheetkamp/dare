@@ -52,9 +52,8 @@ struct FeedPage: View {
 
                 Spacer()
             }
-            .foregroundStyle(.white)
-            .padding(.trailing, 16),
-            alignment: .trailing
+                .foregroundStyle(.white)
+                .padding(.trailing, 16), alignment: .trailing
         )
     }
 }

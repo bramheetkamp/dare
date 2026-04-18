@@ -42,7 +42,7 @@ struct PostRowView: View {
                 PostRowChallengeView(challengeId: challengeId, challengesStore: challengesStore)
             }
             PostRowContentView(postId: postId, isVisible: isVisible)
-            PostRowButtonsView(postId: postId)
+            PostRowButtonsView(postId: postId, challengeId: challengeId, challengesStore: challengesStore)
         }
         .padding(16)
         .background(Color("cell"))

@@ -17,40 +17,39 @@ struct FeedChallengeRowView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(challenge.challenge)
-                .font(.headline)
-                .foregroundColor(.primary)
-                .lineLimit(1)
-
-            Text("\(challenge.caption)")
-                .font(.subheadline)
-                .foregroundColor(Color("detailText"))
-                .lineLimit(1)
-                .truncationMode(.tail)
-            
-            InteractiveButton(
-                action: {
-                    guard let challengeId = challenge.id else { return }
-                    router.navigate(to: .challengeDetail(challengeId: challengeId))
-                },
-                backgroundColor: .primaryButton.opacity(0.1),
-                cornerRadius: Style.CornerRadius.small,
-                scaleEffect: true
-            ) {
-                HStack {
-                    Text("Add an update")
-                        .font(.system(size: Style.FontSize.medium, weight: .semibold))
-                    Spacer()
-                    Image(systemName: "plus")
-                        .font(.system(size: Style.FontSize.medium, weight: .bold))
+        RoundedRectangle(cornerRadius: 14)
+            .fill(.red)
+            .frame(width: 200, height: 300)
+            .overlay(alignment: .bottomLeading) {
+                VStack {
+                    Text(challenge.challenge)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .lineLimit(2)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 4)
+                    InteractiveButton(
+                        action: {
+                            guard let challengeId = challenge.id else { return }
+                            router.navigate(to: .challengeDetail(challengeId: challengeId))
+                        },
+                        backgroundColor: .primary,
+                        cornerRadius: Style.CornerRadius.small,
+                        scaleEffect: true
+                    ) {
+                        HStack {
+                            Text("Check in")
+                                .font(.system(size: Style.FontSize.medium, weight: .semibold))
+                            Spacer()
+                            Image(systemName: "plus")
+                                .font(.system(size: Style.FontSize.medium, weight: .bold))
+                        }
+                        .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 24)
                 }
-                .foregroundColor(.primaryButton)
             }
         }
-        .padding()
-        .background(Color("cell"))
-        .cornerRadius(Style.CornerRadius.small)
-        .frame(maxWidth: UIScreen.main.bounds.width * 0.6)
     }
-}
