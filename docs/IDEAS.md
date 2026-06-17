@@ -20,6 +20,60 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 
 ---
 
+## ⭐ NEXT PRIORITY — Locket-style quick-post + photo card view (Ring 1)
+
+> The owner has explicitly asked for this next. Do this before anything else.
+
+- [ ] 🟡 **Locket-style quick-post sheet (`QuickPostView`)** — replace the current multi-section
+  form (`CreatePostView`) with a photo-first, one-screen posting experience:
+
+  **What to build:**
+  - New file: `Dare/Core/Explore/Create/Post/Views/QuickPostView.swift` + matching
+    `QuickPostViewModel` if needed (or reuse `CreatePostViewModel` directly).
+  - **Screen layout (top → bottom):**
+    1. Large photo card (~65 % of screen height): rounded rectangle, `scaledToFill`, clips to
+       shape. When no photo is selected yet show a dark placeholder with a centred camera icon
+       (`photo.on.rectangle`) and "Tap to add photo" label — tapping opens `PhotosPicker`.
+       Once selected, the card shows the photo and a small "change" button overlaid top-right.
+    2. Note field directly below the card: single-line `TextField`, placeholder `"What's the
+       vibe?"`, auto-focuses as soon as a photo is picked. This IS the post title — maps to the
+       `title` param of `CreatePostViewModel.createPost`.
+    3. Sticky bottom bar: "Post" button (full-width, brand colour, disabled until a photo +
+       non-empty note). Shows a `ProgressView` while uploading.
+  - **No** location, date, extra caption, or challenge-card sections. Those fields pass as
+    empty strings / defaults to the existing service call — nothing breaks on the backend.
+  - Wire it in: update `ViewFactory` so `.createPost(challengeId:)` presents `QuickPostView`
+    instead of `CreatePostView`. Keep `CreatePostView` in the tree (don't delete it) in case
+    it is referenced elsewhere; just stop routing to it from the main flow.
+  - The old `CreatePostView` becomes dead-code for now — that's fine; it can be cleaned up in a
+    later run.
+
+  **Also build — the matching full-screen post viewer (`LocketPostView`):**
+  - New file: `Dare/Core/Detail/Post/Views/LocketPostView.swift`
+  - A full-screen card view (used when tapping a `CircleTileView` in `TodayView`):
+    1. Photo fills the entire screen edge-to-edge (`scaledToFill`, ignores safe area).
+    2. Bottom scrim gradient (black 0 % → 55 % over bottom third).
+    3. Over the scrim:
+       - Avatar (32 pt circle) + username + time-ago on one line.
+       - Note text below (`.title3.weight(.semibold)`, white, 2-line limit).
+       - A row of reaction / like button (reuse existing `PostRowButtonsView` styled for dark bg).
+    4. "Comments ›" pill at the very bottom — taps to open the existing `PostCommentsView` in a
+       sheet.
+    5. Swipe-down or back-chevron dismisses.
+  - Wire it in: in `TodayView` change the `CircleTileView.onTapGesture` to navigate to a new
+    `.locketPost(postId:)` destination in `AppDestination` / `ViewFactory`. The old
+    `.postDetail(postId:)` destination stays untouched — just add the new one.
+  - `PostsStore` already holds the post data; no new Firestore queries needed for the viewer.
+
+  **Tests:** not much pure logic here — focus on getting the views right. Add at least a
+  smoke-test that `QuickPostViewModel` (or `CreatePostViewModel`) accepts a note + image and
+  calls through without crashing (mock the upload service if needed, or just test the
+  disable-state logic: button is disabled when note is empty).
+
+
+
+---
+
 ## Widgets (Ring 1 "Today" — retention)
 
 - [ ] 🟡 **WidgetKit home-screen widget** showing the latest close-friends post (image + short
