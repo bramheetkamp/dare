@@ -17,8 +17,7 @@ struct CreateChallengeView: View {
     @State private var caption = ""
     @State private var selectedEmojis: [String?] = [nil, nil, nil]
     @State private var isPrivate: Bool = true
-    @State private var goal: Int = 1
-    
+
     @ObservedObject var viewModel = CreateChallengeViewModel()
     
     var body: some View {
@@ -77,15 +76,6 @@ struct CreateChallengeView: View {
                 title: isPrivate ? "Private Challenge" : "Public Challenge",
                 isOn: $isPrivate
             )
-            
-//            if (isPrivate) {
-//                InformationView(information: "Set a goal for yourself. How many posts do you wanna add to this challenge?")
-//                GoalStepper(
-//                    goal: $goal,
-//                    min: 1,
-//                    max: 100
-//                )
-//            }
         }
     }
     

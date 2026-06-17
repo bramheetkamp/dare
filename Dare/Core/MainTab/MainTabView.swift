@@ -24,38 +24,24 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedIndex) {
             FeedView()
-                .onTapGesture {
-                    self.selectedIndex = 0
-                }
                 .tabItem {
-                    Image(systemName: "house")
-                }.tag(0)
-            
+                    Label("Today", systemImage: "house.fill")
+                }
+                .tag(0)
+
             ExploreView()
-                .onTapGesture {
-                    self.selectedIndex = 1
-                }
                 .tabItem {
-                    Image(systemName: "magnifyingglass")
-                }.tag(1)
-            
+                    Label("Discover", systemImage: "sparkle.magnifyingglass")
+                }
+                .tag(1)
+
             if let userId = authViewModel.currentUser?.id {
                 ProfileView(userId: userId)
-                    .onTapGesture {
-                        self.selectedIndex = 2
-                    }
                     .tabItem {
-                        Image(systemName: "person.fill")
-                    }.tag(2)
+                        Label("You", systemImage: "person.fill")
+                    }
+                    .tag(2)
             }
-            
-            TestFeed()
-                .onTapGesture {
-                    self.selectedIndex = 3
-                }
-                .tabItem {
-                    Image(systemName: "magnifyingglass")
-                }.tag(3)
         }
         .accentColor(Color("primaryButton"))
     }

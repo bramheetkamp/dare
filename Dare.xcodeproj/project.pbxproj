@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		79001F312EB4D15E006D3B60 /* EmojiSquareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79001F302EB4D15E006D3B60 /* EmojiSquareView.swift */; };
 		79B20CE52D426A420069FFAD /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CE42D426A420069FFAD /* Kingfisher */; };
 		79B20CE82D426A870069FFAD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CE72D426A870069FFAD /* FirebaseAnalytics */; };
 		79B20CEA2D426A870069FFAD /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 79B20CE92D426A870069FFAD /* FirebaseAnalyticsOnDeviceConversion */; };
@@ -38,7 +37,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		79001F302EB4D15E006D3B60 /* EmojiSquareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSquareView.swift; sourceTree = "<group>"; };
 		7989A6AA2CD1648200DFC039 /* Dare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7989A6BA2CD1648300DFC039 /* DareTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DareTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7989A6C42CD1648300DFC039 /* DareUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DareUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -107,7 +105,6 @@
 		7989A6A12CD1648200DFC039 = {
 			isa = PBXGroup;
 			children = (
-				79001F302EB4D15E006D3B60 /* EmojiSquareView.swift */,
 				7989A6AC2CD1648200DFC039 /* Dare */,
 				7989A6BD2CD1648300DFC039 /* DareTests */,
 				7989A6C72CD1648300DFC039 /* DareUITests */,
@@ -268,7 +265,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				79001F312EB4D15E006D3B60 /* EmojiSquareView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -88,7 +88,7 @@ struct FeedListView: View {
                 .ignoresSafeArea()
 
                 // Fixed header (always below the notch)
-                HeaderView(title: currentHeaderTitle)
+                FeedHeaderView(title: currentHeaderTitle)
                     .padding(.top, geo.safeAreaInsets.top + 10)
                     .padding(.horizontal, 16)
                     .frame(maxWidth: .infinity, alignment: .top)

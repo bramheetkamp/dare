@@ -1,0 +1,59 @@
+rules_version = '2';
+
+// Firebase Storage security rules for Dare.
+//
+// Paths the app uses today (see ImageUploader / PostUploadService):
+//   profile_image/{uuid}        profile photos (JPEG)
+//   post_images/{uuid}.jpg      post images
+//   post_videos/{uuid}.mp4      post videos
+//
+// IMPORTANT — ownership limitation:
+// These paths use a random UUID and do NOT embed the uploader's uid, so the
+// rules below can require authentication but CANNOT restrict update/delete to
+// the original owner (any signed-in user could overwrite/delete any object by
+// guessing/knowing its name). To get per-user ownership, restructure paths to
+// include the uid, e.g. `post_images/{userId}/{uuid}.jpg`, and switch the
+// write condition to `request.auth.uid == userId`.
+//
+// Reads are open to any signed-in user because download URLs are stored in
+// public Firestore docs and shown across the feed. Tighten to `if true` only
+// if you rely on unauthenticated/token URLs.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Cap uploads to sane sizes and correct content types.
+    function isImage(maxMB) {
+      return request.resource.contentType.matches('image/.*')
+             && request.resource.size < maxMB * 1024 * 1024;
+    }
+    function isVideo(maxMB) {
+      return request.resource.contentType.matches('video/.*')
+             && request.resource.size < maxMB * 1024 * 1024;
+    }
+
+    match /profile_image/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isImage(10);
+    }
+
+    match /post_images/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isImage(15);
+    }
+
+    match /post_videos/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isVideo(200);
+    }
+
+    // Deny any path not listed above.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

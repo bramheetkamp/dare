@@ -11,7 +11,9 @@ struct ProfileSettingsView: View {
     
     let userId: String
     @StateObject var viewModel: ProfileSettingsViewModel
-    
+
+    @AppStorage("appearanceMode") private var appearanceMode: AppearanceMode = .system
+
     init(userId: String) {
         self.userId = userId
         _viewModel = StateObject(wrappedValue: ProfileSettingsViewModel(userId: userId))
@@ -26,7 +28,9 @@ struct ProfileSettingsView: View {
                     ("Updates", "15"),
                     ("Rank", "12 🏆")
                 ])
-                
+
+                appearanceSection
+
                 InteractiveButton(
                     action: {
                         do {
@@ -56,5 +60,25 @@ struct ProfileSettingsView: View {
         }
         .withStandardPageStyle(title: "Settings", extendView: false)
     }
-    
+
+    private var appearanceSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Appearance")
+                .font(Style.Typography.sectionTitle)
+                .foregroundColor(.headerText)
+
+            Picker("Appearance", selection: $appearanceMode) {
+                ForEach(AppearanceMode.allCases) { mode in
+                    Label(mode.label, systemImage: mode.icon)
+                        .tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.cell)
+        .clipShape(RoundedRectangle(cornerRadius: Style.CornerRadius.small))
+    }
+
 }

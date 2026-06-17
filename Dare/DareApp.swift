@@ -16,7 +16,9 @@ struct DareApp: App {
     @StateObject private var usersStore = UsersStore()
     @StateObject private var challengesStore = ChallengesStore()
     @StateObject private var playerManager = PlayerManager()
-    
+
+    @AppStorage("appearanceMode") private var appearanceMode: AppearanceMode = .system
+
     init() {
         FirebaseApp.configure()
     }
@@ -30,6 +32,7 @@ struct DareApp: App {
                 .environmentObject(usersStore)
                 .environmentObject(challengesStore)
                 .environmentObject(playerManager)
+                .preferredColorScheme(appearanceMode.colorScheme)
                 .onOpenURL { url in
                     router.handle(url: url)
                 }

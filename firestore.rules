@@ -1,0 +1,122 @@
+rules_version = '2';
+
+// Firestore security rules for Dare.
+//
+// Model (see Dare/Model + Dare/Service):
+//   users/{uid}                         owner doc, keyed by Firebase Auth uid
+//     users/{uid}/following/{targetUid} presence doc (who uid follows)
+//     users/{uid}/followers/{followerUid} presence doc (who follows uid)
+//     users/{uid}/user-likes/{postId}   reverse index of posts uid liked
+//   posts/{postId}                      author in `uid`
+//     posts/{postId}/comments/{cid}     author in `uid`
+//     posts/{postId}/likes/{uid}        presence doc, id == liker uid
+//   challenges/{id}                     creator in `uid`
+//   challengeCategories/{id}            app-curated, read-only to clients
+//
+// NOTE ON FOLLOW COUNTERS: following someone writes to *another* user's doc
+// (their followersCount + a followers/{me} presence doc). Client rules cannot
+// fully guarantee counter integrity — a determined client can desync counts.
+// For tamper-proof counts, move follow/unfollow into a Cloud Function and
+// tighten the rules below to owner-only. The current rules allow exactly the
+// cross-user writes the app performs today.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Returns true if the update only touches the listed follower-count fields.
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    // ---- users ----
+    match /users/{uid} {
+      allow read: if isSignedIn();
+
+      // Create your own profile doc, with uid stamped correctly.
+      allow create: if isOwner(uid)
+                    && request.resource.data.uid == uid;
+
+      // Update your own profile freely; OR let another signed-in user bump
+      // only your follower counters (the follow/unfollow flow).
+      allow update: if isOwner(uid)
+                    || (isSignedIn() && onlyChanges(['followersCount']));
+
+      allow delete: if isOwner(uid);
+
+      // following / followers: presence docs the owner (or follower) toggles.
+      match /following/{targetUid} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(uid);
+      }
+      match /followers/{followerUid} {
+        allow read: if isSignedIn();
+        // The follower creates/removes their own presence marker here.
+        allow write: if isOwner(followerUid);
+      }
+
+      // user-likes: private reverse index, owner only.
+      match /user-likes/{postId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // ---- posts ----
+    match /posts/{postId} {
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn()
+                    && request.resource.data.uid == request.auth.uid;
+
+      // Author may edit/delete their post; anyone signed in may change only the
+      // denormalized `likes` count (like/unlike).
+      allow update: if (isSignedIn() && resource.data.uid == request.auth.uid)
+                    || (isSignedIn() && onlyChanges(['likes']));
+
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+
+      match /comments/{commentId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn()
+                      && request.resource.data.uid == request.auth.uid;
+        allow update, delete: if isSignedIn()
+                              && resource.data.uid == request.auth.uid;
+      }
+
+      // likes: doc id == liker uid; you toggle only your own.
+      match /likes/{likerUid} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(likerUid);
+      }
+    }
+
+    // ---- challenges ----
+    match /challenges/{challengeId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+                    && request.resource.data.uid == request.auth.uid;
+      // Owner edits; anyone signed in may bump only the `updates` count.
+      allow update: if (isSignedIn() && resource.data.uid == request.auth.uid)
+                    || (isSignedIn() && onlyChanges(['updates']));
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // ---- challengeCategories: app-curated, read-only to clients ----
+    match /challengeCategories/{categoryId} {
+      allow read: if isSignedIn();
+      allow write: if false; // manage from console / admin SDK only
+    }
+
+    // Deny everything not matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

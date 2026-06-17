@@ -22,19 +22,8 @@ struct CustomSearchBar: View {
         }
         .padding(10)
         .background(Color("cell"))
-        .background(Color("cell"))
         .foregroundColor(Color("headerText"))
         .cornerRadius(Style.CornerRadius.small)
-    }
-}
-
-struct CustomSearchBarStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                RoundedRectangle(cornerRadius: Style.CornerRadius.small)
-                    .stroke(Color.clear, lineWidth: 0)
-            )
     }
 }
 
