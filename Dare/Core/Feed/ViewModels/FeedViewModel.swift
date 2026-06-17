@@ -33,7 +33,7 @@ class FeedViewModel: ObservableObject {
         return lastChallengeDocument
     }
 
-    private let pageSize = 5
+    private let pageSize = 10
     private var followingUserIds: [String] = []
 
     var followingUserIdsList: [String] {
@@ -70,6 +70,7 @@ class FeedViewModel: ObservableObject {
             var followingIds = followingUserIds
             followingIds.append(currentUserId)
             guard let self = self else { return }
+            self.followingUserIds = followingUserIds
             self.postFetchService.fetchFeedPosts(followingUserIds: followingIds, limit: self.pageSize, lastDocument: self.lastPostDocument) { newPosts, lastDoc in
                 self.isLoadingPosts = false
                 if newPosts.isEmpty {
@@ -77,19 +78,16 @@ class FeedViewModel: ObservableObject {
                     return
                 }
 
-                let group = DispatchGroup()
-                var newPosts = newPosts
-                for index in 0 ..< newPosts.count {
-                    group.enter()
-                    self.postLikeService.checkIsUserLikedPost(newPosts[index]) { didLike in
-                        newPosts[index].didLike = didLike
-                        group.leave()
+                // One batched read for all like-statuses instead of one read per post.
+                let postIds = newPosts.compactMap { $0.id }
+                self.postLikeService.likedPostIds(in: postIds) { likedIds in
+                    var newPosts = newPosts
+                    for index in newPosts.indices {
+                        newPosts[index].didLike = likedIds.contains(newPosts[index].id ?? "")
                     }
-                }
 
-                group.notify(queue: .main) {
                     self.postsStore.insertOrUpdate(newPosts)
-                    
+
                     let newIds = newPosts.compactMap { $0.id }
                     self.feedPostIds.append(contentsOf: newIds.filter { !self.feedPostIds.contains($0) })
                     self.lastPostDocument = lastDoc
@@ -139,9 +137,13 @@ class FeedViewModel: ObservableObject {
                 if newChallenges.isEmpty {
                     self.hasMoreChallenges = false
                 } else {
-                    self.challenges.append(contentsOf: newChallenges.map { challenge in
-                        return challenge
-                    })
+                    // Dedup against challenges already shown to avoid repeats across pages.
+                    let existingIds = Set(self.challenges.compactMap { $0.id })
+                    let uniqueNew = newChallenges.filter { challenge in
+                        guard let id = challenge.id else { return true }
+                        return !existingIds.contains(id)
+                    }
+                    self.challenges.append(contentsOf: uniqueNew)
                 }
 
                 self.lastChallengeDocument = lastDoc

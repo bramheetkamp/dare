@@ -12,18 +12,25 @@ struct ContentView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     @EnvironmentObject private var router: AppRouter
 
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+
     var body: some View {
         Group {
             switch viewModel.authState {
             case .loading:
                 ProgressView()
                     .scaleEffect(2)
-                
+
             case .authenticated:
                 mainInterfaceView
-                
+                    .task { viewModel.recordDailyActivity() }
+
             case .unauthenticated:
-                authInterfaceView
+                if hasSeenOnboarding {
+                    authInterfaceView
+                } else {
+                    OnboardingView { hasSeenOnboarding = true }
+                }
             }
         }
         .animation(.default, value: viewModel.authState)
@@ -79,7 +86,13 @@ extension ContentView {
                             Spacer()
                         }
                     }
-                    
+
+                    if let user = viewModel.currentUser {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            StreakBadgeView(streak: user.streak, points: user.totalPoints)
+                        }
+                    }
+
                     if router.selectedTabIndex == 0 {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button {

@@ -89,15 +89,19 @@ class AppRouter: ObservableObject {
     }
     
     func createDeepLink(for destination: AppDestination) -> URL? {
-        let baseURL = "yourapp://your-domain.com"
-        
+        let scheme = "dare://"
+
         switch destination {
         case .challengeDetail(let challengeId):
-            return URL(string: "\(baseURL)/challenge?id=\(challengeId)")
+            return URL(string: "\(scheme)challenge?id=\(challengeId)")
         case .postDetail(let postId):
-            return URL(string: "\(baseURL)/post?id=\(postId)")
+            return URL(string: "\(scheme)post?id=\(postId)")
+        case .comments(let postId):
+            return URL(string: "\(scheme)comments?id=\(postId)")
+        case .challengeCategory(let categoryId):
+            return URL(string: "\(scheme)category?id=\(categoryId)")
         case .profile(let userId):
-            return URL(string: "\(baseURL)/profile?id=\(userId)")
+            return URL(string: "\(scheme)profile?id=\(userId)")
         default:
             return nil
         }

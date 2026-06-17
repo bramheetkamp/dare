@@ -82,5 +82,34 @@ struct PostLikeService {
                 completion(snapshot?.exists ?? false)
             }
     }
+
+    /// Batched "did I like these?" check. Instead of one read per post (N reads), this queries
+    /// the current user's `user-likes` subcollection in chunks of 10 (Firestore `in` limit),
+    /// turning N reads into ceil(N / 10). Returns the set of liked post ids.
+    func likedPostIds(in postIds: [String], completion: @escaping (Set<String>) -> Void) {
+        guard let uid = auth.currentUser?.uid, !postIds.isEmpty else {
+            completion([])
+            return
+        }
+
+        let collection = userLikesCollection(userId: uid)
+        var liked = Set<String>()
+        let group = DispatchGroup()
+
+        for start in stride(from: 0, to: postIds.count, by: 10) {
+            let chunk = Array(postIds[start..<min(start + 10, postIds.count)])
+            group.enter()
+            collection
+                .whereField(FieldPath.documentID(), in: chunk)
+                .getDocuments { snapshot, _ in
+                    snapshot?.documents.forEach { liked.insert($0.documentID) }
+                    group.leave()
+                }
+        }
+
+        group.notify(queue: .main) {
+            completion(liked)
+        }
+    }
 }
 

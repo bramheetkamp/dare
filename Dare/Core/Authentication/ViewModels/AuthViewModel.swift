@@ -29,8 +29,9 @@ class AuthViewModel: ObservableObject {
     
     @Published var authState: AuthState = .loading
     private var authStateHandler: AuthStateDidChangeListenerHandle?
-    
+
     private let service = UserService()
+    private let gamificationService = GamificationService()
     
     // MARK: - Lifecycle
     
@@ -102,8 +103,30 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Gamification
+
+    /// Call once per app open: advances the daily streak/points on a new calendar day and
+    /// refreshes the cached user so the UI reflects the change.
+    func recordDailyActivity() {
+        guard let uid = currentUser?.id else { return }
+        gamificationService.recordDailyActivity(uid: uid) { [weak self] _ in
+            self?.refreshCurrentUser()
+        }
+    }
+
+    /// Re-fetches the signed-in user's document and republishes it.
+    func refreshCurrentUser() {
+        guard let uid = currentUser?.id else { return }
+        service.fetchUser(withUid: uid) { [weak self] appUser in
+            guard let appUser else { return }
+            DispatchQueue.main.async {
+                self?.authState = .authenticated(appUser)
+            }
+        }
+    }
+
     // MARK: - User Management
-    
+
     func uploadProfileImage(_ image: UIImage) {
         guard let uid = currentUser?.id else { return }
         

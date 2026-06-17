@@ -20,14 +20,26 @@ struct User: Identifiable, Decodable, Equatable, Hashable {
     var isFollowing: Bool?
     var followersCount: Int?
     var followingCount: Int?
+
+    // MARK: Gamification (optional — older documents decode these as nil)
+    var points: Int?
+    var currentStreak: Int?
+    var longestStreak: Int?
+    var lastActiveAt: Timestamp?
 }
 
 extension User {
     var avatarUrl: String {
         profileImageUrl ?? "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50"
     }
-    
+
     var isCurrentUser: Bool {
         Auth.auth().currentUser?.uid == id
     }
+
+    // MARK: Gamification helpers
+    var totalPoints: Int { points ?? 0 }
+    var streak: Int { currentStreak ?? 0 }
+    var bestStreak: Int { longestStreak ?? 0 }
+    var level: Int { GamificationLevel.level(for: totalPoints) }
 }
