@@ -61,7 +61,4 @@ struct ChallengeHeaderView: View {
         router.navigate(to: .createChallenge)
     }
     
-    func safeAreaTopPadding() -> CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0
-    }
 }

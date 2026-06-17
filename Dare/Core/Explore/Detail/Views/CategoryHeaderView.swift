@@ -33,9 +33,6 @@ struct CategoryHeaderView: View {
         }
     }
     
-    func safeAreaTopPadding() -> CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0
-    }
 }
 
 

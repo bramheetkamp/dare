@@ -139,8 +139,5 @@ struct CommentsView: View {
         }
     }
     
-    func safeAreaBottomPadding() -> CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.bottom ?? 0
-    }
     
 }

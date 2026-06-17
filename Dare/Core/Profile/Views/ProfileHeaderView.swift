@@ -113,7 +113,4 @@ struct ProfileHeaderView: View {
         return user.isCurrentUser ? "Settings" : (user.isFollowing ?? false ? "Unfollow" : "Follow")
     }
     
-    func safeAreaTopPadding() -> CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0
-    }
 }
