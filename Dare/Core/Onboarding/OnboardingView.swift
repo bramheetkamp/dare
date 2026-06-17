@@ -24,28 +24,28 @@ struct OnboardingView: View {
 
     private let pages: [OnboardingPage] = [
         OnboardingPage(
-            systemImage: "flame.fill",
-            tint: .orange,
-            title: "Welcome to Dare",
-            body: "Dare is where friends challenge each other to do something real. Take on a dare, prove it, and dare them back."
+            systemImage: "sparkles",
+            tint: Color("primaryButton"),
+            title: "A lowkey window into what drives you",
+            body: "Dare is a calm place to see what your people are into — and to track who you're becoming. Just a quick pic and a short note."
         ),
         OnboardingPage(
-            systemImage: "bolt.heart.fill",
-            tint: Color("primaryButton"),
-            title: "Take on challenges",
-            body: "Browse challenges from people you follow, pick one that scares you a little, and post your photo or video answer."
+            systemImage: "figure.climbing",
+            tint: .orange,
+            title: "Chase what you're becoming",
+            body: "Pick a journey — learn to bake, get your first pull-up, build a chair — and post small updates as you go. Progress over perfection."
         ),
         OnboardingPage(
             systemImage: "person.2.fill",
             tint: .blue,
-            title: "A close circle, not a feed to scroll forever",
-            body: "Dare is built around the people you actually know. Follow friends, react, and keep each other going — quality over endless scrolling."
+            title: "A small circle that keeps it real",
+            body: "No like-counts, no endless scroll, no strangers in your space — just a few people who actually see you and keep you honest."
         ),
         OnboardingPage(
-            systemImage: "star.fill",
+            systemImage: "clock.arrow.circlepath",
             tint: Color("dareGold"),
-            title: "Build your streak",
-            body: "Show up daily to grow your streak, earn points, and level up. Miss a day and the flame resets — so keep coming back."
+            title: "See how far you've come",
+            body: "Keep a weekly rhythm to grow your streak, and look back at what drove you a year ago. The record of your becoming."
         )
     ]
 

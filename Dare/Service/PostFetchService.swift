@@ -157,6 +157,31 @@ struct PostFetchService {
         }
     }
     
+    /// Posts by `uid` whose timestamp falls in a window — powers the "you, a year ago"
+    /// resurfacing (pass a window centred on this date last year).
+    func fetchPosts(
+        uid: String,
+        from start: Date,
+        to end: Date,
+        limit: Int = 12,
+        completion: @escaping ([PublicPost]) -> Void
+    ) {
+        postsCollection()
+            .whereField("uid", isEqualTo: uid)
+            .whereField("timestamp", isGreaterThanOrEqualTo: Timestamp(date: start))
+            .whereField("timestamp", isLessThanOrEqualTo: Timestamp(date: end))
+            .order(by: "timestamp", descending: true)
+            .limit(to: limit)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error fetching memories: \(error.localizedDescription)")
+                    completion([])
+                    return
+                }
+                completion(snapshot?.documents.compactMap { try? $0.data(as: PublicPost.self) } ?? [])
+            }
+    }
+
     func fetchPost(_ postId: String, completion: @escaping (PublicPost?) -> Void) {
         postDocument(postId).getDocument { snapshot, error in
             if let error = error {

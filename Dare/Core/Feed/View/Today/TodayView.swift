@@ -14,6 +14,7 @@ struct TodayView: View {
     @EnvironmentObject private var router: AppRouter
     @EnvironmentObject private var usersStore: UsersStore
     @StateObject private var viewModel: FeedViewModel
+    @StateObject private var memories = AYearAgoViewModel()
 
     @State private var isFirstLoad = true
 
@@ -47,6 +48,11 @@ struct TodayView: View {
                     onPost: postUpdate,
                     onStart: { router.navigate(to: .createChallenge) }
                 )
+
+                AYearAgoCard(memories: memories.memories) { memory in
+                    guard let id = memory.id else { return }
+                    router.navigate(to: .postDetail(postId: id))
+                }
 
                 circleSection
             }
@@ -135,6 +141,7 @@ struct TodayView: View {
         guard isFirstLoad else { return }
         isFirstLoad = false
         viewModel.fetchChallenges()
+        memories.load()
     }
 
     private func loadMoreIfNeeded(for post: PublicPost) {
