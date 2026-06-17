@@ -121,8 +121,8 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 - [ ] 🟢 **Sign-out / delete-account flow** — App Store also requires in-app account deletion if
   you have account creation. Add to `ProfileSettingsView`; service call to delete the user doc +
   auth user. Confirm-dialog + clear copy.
-- [ ] 🟢 **Auth error messaging** — map Firebase auth error codes to friendly copy. Pure
-  mapping function → fully testable.
+- [x] 🟢 **Auth error messaging** — map Firebase auth error codes to friendly copy. Pure
+  mapping function → fully testable. *(shipped: AuthErrorMapper.swift + AuthErrorMapperTests.swift)*
 
 ## Fun / polish / "official good additions"
 
