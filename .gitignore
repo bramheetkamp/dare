@@ -16,6 +16,10 @@ xcuserdata/
 # IDEs
 .idea/
 
+# Firebase config (keep out of the public repo; each dev/CI supplies its own)
+Dare/GoogleService-Info.plist
+GoogleService-Info.plist
+
 # Misc
 *.moved-aside
 *.hmap
