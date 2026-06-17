@@ -56,7 +56,7 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 - [ ] 🟡 **Weekly challenge "season"** — a time-boxed collective goal with a start/end and a
   shared progress bar. Model: add `startsAt`/`endsAt` to `Challenge`/`Goal`. Pure
   is-active/days-remaining logic → tests.
-- [ ] 🟢 **Streak freeze / grace day** — one earned "freeze" so a missed week doesn't nuke a long
+- [x] 🟢 **Streak freeze / grace day** — one earned "freeze" so a missed week doesn't nuke a long
   streak (proven retention mechanic). Extend `StreakCalculator` + tests.
 - [ ] 🟡 **Small accountability groups (3–6 people)** — the "confronting" small-group idea from the
   product direction. A `Group` model + membership subcollection; members see each other's goal

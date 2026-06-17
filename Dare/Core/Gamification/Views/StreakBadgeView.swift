@@ -10,6 +10,7 @@ import SwiftUI
 struct StreakBadgeView: View {
     let streak: Int
     let points: Int
+    var freezeCount: Int = 0
 
     var body: some View {
         HStack(spacing: 12) {
@@ -18,6 +19,15 @@ struct StreakBadgeView: View {
                     .foregroundColor(streak > 0 ? .orange : .gray)
                 Text("\(streak)")
                     .foregroundColor(.primary)
+            }
+
+            if freezeCount > 0 {
+                HStack(spacing: 4) {
+                    Image(systemName: "snowflake")
+                        .foregroundColor(.cyan)
+                    Text("\(freezeCount)")
+                        .foregroundColor(.primary)
+                }
             }
 
             HStack(spacing: 4) {
@@ -29,7 +39,15 @@ struct StreakBadgeView: View {
         }
         .font(.subheadline.weight(.semibold))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(streak) day streak, \(points) points")
+        .accessibilityLabel(accessibilityDescription)
+    }
+
+    private var accessibilityDescription: String {
+        var parts = ["\(streak) day streak", "\(points) points"]
+        if freezeCount > 0 {
+            parts.insert("\(freezeCount) streak freeze\(freezeCount == 1 ? "" : "s")", at: 1)
+        }
+        return parts.joined(separator: ", ")
     }
 }
 
@@ -60,6 +78,7 @@ struct LevelProgressView: View {
 #Preview {
     VStack(spacing: 24) {
         StreakBadgeView(streak: 7, points: 340)
+        StreakBadgeView(streak: 7, points: 340, freezeCount: 2)
         LevelProgressView(points: 340)
             .padding(.horizontal)
     }

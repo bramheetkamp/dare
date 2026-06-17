@@ -79,6 +79,59 @@ enum GamificationLevel {
     }
 }
 
+// MARK: - Streak freeze
+
+/// Outcome of a freeze-aware streak update.
+struct StreakUpdateResult: Equatable {
+    /// The streak value to persist.
+    let newStreak: Int
+    /// `true` when a freeze token was consumed to protect the streak from resetting.
+    let freezeConsumed: Bool
+}
+
+extension StreakCalculator {
+
+    /// Freeze-aware variant of `updatedStreak`. When the streak would otherwise reset (a
+    /// gap of ≥ 2 days) and `freezesAvailable > 0`, the streak is preserved and
+    /// `freezeConsumed` is `true`. A freeze bridges at most one missed period; a larger gap
+    /// still resets to 1 even if freezes remain.
+    static func updatedStreakApplyingFreeze(
+        previousStreak: Int,
+        lastActive: Date?,
+        now: Date = Date(),
+        calendar: Calendar = .current,
+        freezesAvailable: Int
+    ) -> StreakUpdateResult {
+        guard let lastActive else {
+            return StreakUpdateResult(newStreak: 1, freezeConsumed: false)
+        }
+
+        let startToday = calendar.startOfDay(for: now)
+        let startLast = calendar.startOfDay(for: lastActive)
+        let dayGap = calendar.dateComponents([.day], from: startLast, to: startToday).day ?? 0
+
+        switch dayGap {
+        case ..<0, 0:
+            return StreakUpdateResult(newStreak: max(previousStreak, 1), freezeConsumed: false)
+        case 1:
+            return StreakUpdateResult(newStreak: previousStreak + 1, freezeConsumed: false)
+        default:
+            if freezesAvailable > 0 {
+                return StreakUpdateResult(newStreak: max(previousStreak, 1), freezeConsumed: true)
+            }
+            return StreakUpdateResult(newStreak: 1, freezeConsumed: false)
+        }
+    }
+
+    /// `true` when reaching `newStreak` earns the user a free freeze token:
+    /// at the 7-day milestone and at every 30-day multiple thereafter.
+    static func earnsFreeze(newStreak: Int) -> Bool {
+        newStreak == 7 || (newStreak > 0 && newStreak % 30 == 0)
+    }
+}
+
+// MARK: - Point events
+
 /// Point rewards for in-app actions. Raw values are the points granted.
 enum PointEvent: Int {
     case dailyCheckIn = 5
