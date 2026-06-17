@@ -107,9 +107,9 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 
 - [ ] 🟡 **Group goal leaderboard (supportive, not cutthroat)** — within a goal, show a calm
   ranking by *consistency* (updates this week), not raw points. Pure ranking logic → tests.
-- [ ] 🟡 **Weekly challenge "season"** — a time-boxed collective goal with a start/end and a
+- [x] 🟡 **Weekly challenge "season"** — a time-boxed collective goal with a start/end and a
   shared progress bar. Model: add `startsAt`/`endsAt` to `Challenge`/`Goal`. Pure
-  is-active/days-remaining logic → tests.
+  is-active/days-remaining logic → tests. *(shipped: ChallengeSeason.swift + ChallengeSeasonTests.swift + ActiveGoalHeroCard progress bar)*
 - [x] 🟢 **Streak freeze / grace day** — one earned "freeze" so a missed week doesn't nuke a long
   streak (proven retention mechanic). Extend `StreakCalculator` + tests.
 - [ ] 🟡 **Small accountability groups (3–6 people)** — the "confronting" small-group idea from the
