@@ -14,9 +14,7 @@ struct RegistrationView: View {
     @State private var password = ""
     @State private var showErrorPopup = false
     @State private var errorMessage = ""
-    
-    @State private var isSelectingPhoto = false
-    
+
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var viewModel: AuthViewModel
     @FocusState private var focusedField: Field?
@@ -115,11 +113,11 @@ struct RegistrationView: View {
             }
         }
         .withStandardPageStyle(extendView: false)
-        .navigationDestination(isPresented: $isSelectingPhoto) {
-            ProfilePhotoSelectorView()
-        }
+        .overlay(
+            ErrorPopupView(title: "Sign Up Failed", message: errorMessage, buttonTitle: "Got it", isPresented: $showErrorPopup)
+        )
     }
-    
+
     private func signUp() {
         if email.isEmpty
             || password.isEmpty
@@ -133,7 +131,10 @@ struct RegistrationView: View {
                 password: password,
                 fullname: fullname,
                 username: username
-            )
+            ) { error in
+                errorMessage = error
+                showErrorPopup = true
+            }
         }
     }
 }

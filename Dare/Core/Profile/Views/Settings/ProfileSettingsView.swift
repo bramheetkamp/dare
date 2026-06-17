@@ -6,28 +6,37 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ProfileSettingsView: View {
-    
+
     let userId: String
     @StateObject var viewModel: ProfileSettingsViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
 
     @AppStorage("appearanceMode") private var appearanceMode: AppearanceMode = .system
+
+    @State private var showImagePicker = false
+    @State private var pickedImage: UIImage?
 
     init(userId: String) {
         self.userId = userId
         _viewModel = StateObject(wrappedValue: ProfileSettingsViewModel(userId: userId))
     }
-    
+
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ProfileStatsView(stats: [
-                    ("Challenges", "45"),
-                    ("Finished", "30"),
-                    ("Updates", "15"),
-                    ("Rank", "12 🏆")
-                ])
+                photoSection
+
+                if let user = authViewModel.currentUser {
+                    ProfileStatsView(stats: [
+                        ("Points", "\(user.totalPoints)"),
+                        ("Day streak", "\(user.streak) 🔥"),
+                        ("Best streak", "\(user.bestStreak)"),
+                        ("Level", "\(user.level)")
+                    ])
+                }
 
                 appearanceSection
 
@@ -59,6 +68,32 @@ struct ProfileSettingsView: View {
             .padding(.bottom, 80)
         }
         .withStandardPageStyle(title: "Settings", extendView: false)
+        .sheet(isPresented: $showImagePicker, onDismiss: uploadPickedImage) {
+            ImagePicker(selectedImage: $pickedImage)
+        }
+    }
+
+    private var photoSection: some View {
+        VStack(spacing: 12) {
+            KFImage(URL(string: authViewModel.currentUser?.avatarUrl ?? ""))
+                .resizable()
+                .scaledToFill()
+                .frame(width: 96, height: 96)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color("primaryButton"), lineWidth: 3))
+
+            Button("Change photo") { showImagePicker = true }
+                .font(Style.Typography.bodyStrong)
+                .foregroundColor(Color("primaryButton"))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+    }
+
+    private func uploadPickedImage() {
+        guard let pickedImage else { return }
+        authViewModel.uploadProfileImage(pickedImage)
+        self.pickedImage = nil
     }
 
     private var appearanceSection: some View {

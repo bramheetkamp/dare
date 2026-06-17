@@ -81,24 +81,4 @@ struct UserService {
             completion(users, snapshot.documents.last)
         }
     }
-    
-    // MARK: - Fetch All Users (Use with Caution)
-    
-    func fetchUsers(completion: @escaping ([User]) -> Void) {
-        usersCollection().getDocuments { snapshot, error in
-            if let error = error {
-                print("Error fetching all users: \(error.localizedDescription)")
-                completion([])
-                return
-            }
-            
-            guard let documents = snapshot?.documents else {
-                completion([])
-                return
-            }
-            
-            let users = documents.compactMap { try? $0.data(as: User.self) }
-            completion(users)
-        }
-    }
 }

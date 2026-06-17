@@ -166,10 +166,11 @@ struct ChallengeService {
         }
     }
     
-    func fetchChallengeCategories(completion: @escaping ([ChallengeCategory]) -> Void) {
+    func fetchChallengeCategories(limit: Int = 50, completion: @escaping ([ChallengeCategory]) -> Void) {
         let query = Firestore.firestore().collection("challengeCategories")
             .order(by: "timestamp", descending: true)
-        
+            .limit(to: limit)
+
         query.getDocuments { snapshot, error in
             if let error = error {
                 print("DEBUG: Error fetching categories, \(error.localizedDescription)")

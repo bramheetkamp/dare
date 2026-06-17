@@ -34,18 +34,6 @@ struct CommentService {
             }
     }
     
-    func fetchComments(postId: String, completion: @escaping([Comment]) -> Void) {
-        Firestore.firestore().collection("posts").document(postId).collection("comments")
-            .order(by: "timestamp", descending: true)
-            .getDocuments { snapshot, _ in
-            guard let documents = snapshot?.documents else { return }
-            
-            let comments = documents.compactMap({ try? $0.data(as: Comment.self)})
-            completion(comments)
-        }
-    }
-    
-    
     func fetchComments(postId: String, limit: Int, lastDocument: DocumentSnapshot?, completion: @escaping ([Comment], DocumentSnapshot?) -> Void) {
         var query = Firestore.firestore().collection("posts")
             .document(postId).collection("comments")

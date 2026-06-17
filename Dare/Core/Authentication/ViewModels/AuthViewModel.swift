@@ -69,9 +69,10 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    func register(withEmail email: String, password: String, fullname: String, username: String) {
+    func register(withEmail email: String, password: String, fullname: String, username: String, onFailure: ((String) -> Void)? = nil) {
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             if let error = error {
+                onFailure?(error.localizedDescription)
                 print("DEBUG: Failed to register with error \(error.localizedDescription)")
                 return
             }
@@ -103,6 +104,19 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    /// Sends a Firebase password-reset email. Reports success/failure so the UI can confirm.
+    func sendPasswordReset(email: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        Auth.auth().sendPasswordReset(withEmail: email) { error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
+        }
+    }
+
     // MARK: - Gamification
 
     /// Call once per app open: advances the daily streak/points on a new calendar day and
@@ -127,14 +141,15 @@ class AuthViewModel: ObservableObject {
 
     // MARK: - User Management
 
-    func uploadProfileImage(_ image: UIImage) {
+    func uploadProfileImage(_ image: UIImage, completion: (() -> Void)? = nil) {
         guard let uid = currentUser?.id else { return }
-        
-        ImageUploader.uploadImage(image: image) { profileImageUrl in
+
+        ImageUploader.uploadImage(image: image) { [weak self] profileImageUrl in
             Firestore.firestore().collection("users")
                 .document(uid)
                 .updateData(["profileImageUrl": profileImageUrl]) { _ in
-                    print("DEBUG: Updated profile image URL")
+                    self?.refreshCurrentUser()
+                    completion?()
                 }
         }
     }

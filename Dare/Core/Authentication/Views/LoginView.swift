@@ -12,6 +12,7 @@ struct LoginView: View {
     @State private var password = ""
     @State private var showErrorPopup = false
     @State private var errorMessage = ""
+    @State private var resetConfirmation: String?
     @EnvironmentObject var viewModel: AuthViewModel
     @EnvironmentObject private var router: AppRouter
     
@@ -56,7 +57,7 @@ struct LoginView: View {
             .padding(.top, 44)
             
             Button {
-                router.navigate(to: .registration)
+                sendPasswordReset()
             } label: {
                 HStack {
                     Spacer()
@@ -105,9 +106,32 @@ struct LoginView: View {
         .overlay(
             ErrorPopupView(title: "Login Failed", message: errorMessage, buttonTitle: "Got it", isPresented: $showErrorPopup)
         )
+        .alert("Check your inbox", isPresented: .constant(resetConfirmation != nil)) {
+            Button("OK") { resetConfirmation = nil }
+        } message: {
+            Text(resetConfirmation ?? "")
+        }
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
-    
+
+    private func sendPasswordReset() {
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            errorMessage = "Enter your email above first, then tap Forgot Password."
+            showErrorPopup = true
+            return
+        }
+        viewModel.sendPasswordReset(email: trimmed) { result in
+            switch result {
+            case .success:
+                resetConfirmation = "We sent a password-reset link to \(trimmed)."
+            case .failure(let error):
+                errorMessage = error.localizedDescription
+                showErrorPopup = true
+            }
+        }
+    }
+
     private func login() {
         
         if email.isEmpty || password.isEmpty {

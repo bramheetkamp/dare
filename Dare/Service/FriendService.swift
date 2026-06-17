@@ -123,29 +123,38 @@ class FriendService {
     
     // MARK: - Fetch Recommended Friends
     
-    func fetchRecommendedFriends(currentUserId: String, completion: @escaping ([String]) -> Void) {
+    /// Friends-of-friends suggestions. Fan-out is bounded on both axes (number of friends we
+    /// branch from, and documents read per friend) so the cost stays predictable as the graph grows.
+    func fetchRecommendedFriends(
+        currentUserId: String,
+        maxFriendsToExpand: Int = 20,
+        perFriendLimit: Int = 20,
+        maxSuggestions: Int = 30,
+        completion: @escaping ([String]) -> Void
+    ) {
         fetchFollowing(currentUserId: currentUserId) { activeFriendIds in
+            let seeds = Array(activeFriendIds.prefix(maxFriendsToExpand))
+            let existing = Set(activeFriendIds)
             var suggestedUserIds = Set<String>()
             let dispatchGroup = DispatchGroup()
-            
-            for activeFriendId in activeFriendIds {
+
+            for activeFriendId in seeds {
                 dispatchGroup.enter()
                 self.followingCollection(for: activeFriendId)
-                    .getDocuments { snapshot, error in
-                        if let documents = snapshot?.documents {
-                            for doc in documents {
-                                let suggestedId = doc.documentID
-                                if !activeFriendIds.contains(suggestedId) && suggestedId != currentUserId {
-                                    suggestedUserIds.insert(suggestedId)
-                                }
+                    .limit(to: perFriendLimit)
+                    .getDocuments { snapshot, _ in
+                        for doc in snapshot?.documents ?? [] {
+                            let suggestedId = doc.documentID
+                            if !existing.contains(suggestedId) && suggestedId != currentUserId {
+                                suggestedUserIds.insert(suggestedId)
                             }
                         }
                         dispatchGroup.leave()
                     }
             }
-            
+
             dispatchGroup.notify(queue: .main) {
-                completion(Array(suggestedUserIds))
+                completion(Array(suggestedUserIds.prefix(maxSuggestions)))
             }
         }
     }
