@@ -98,16 +98,16 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 
 ## Logging / analytics on views (measurement foundation)
 
-- [ ] 🟢 **`AnalyticsEvent` enum + `AnalyticsService` protocol** in `Service/` with a console/no-op
+- [x] 🟢 **`AnalyticsEvent` enum + `AnalyticsService` protocol** in `Service/` with a console/no-op
   default impl. Pure event definitions → testable. This is the foundation for everything
-  measurement-related (ads, A/B, retention).
-- [ ] 🟢 **`.trackScreen(_:)` view modifier** — a reusable SwiftUI modifier that fires a
+  measurement-related (ads, A/B, retention). *(shipped: AnalyticsEvent.swift + AnalyticsService.swift)*
+- [x] 🟢 **`.trackScreen(_:)` view modifier** — a reusable SwiftUI modifier that fires a
   screen-view event `onAppear`. Drop it on the main screens (Feed, Explore, Profile, Onboarding,
-  Goal detail). Logic (debounce duplicate appears) is testable.
+  Goal detail). Logic (debounce duplicate appears) is testable. *(shipped: View+Analytics.swift + ScreenTracker)*
 - [ ] 🟡 **Firebase Analytics integration** behind the `AnalyticsService` protocol. 🔴 Needs the
   Analytics SDK added + console. Swap the no-op impl; no call sites change.
-- [ ] 🟢 **Funnel events for onboarding** — log start / each step / finish so drop-off is visible.
-  Pure event emission; wire into `OnboardingView`.
+- [x] 🟢 **Funnel events for onboarding** — log start / each step / finish so drop-off is visible.
+  Pure event emission; wire into `OnboardingView`. *(shipped: OnboardingView analytics + AnalyticsTests.swift)*
 
 ## Apple login & registration (auth growth / App Store requirement)
 
