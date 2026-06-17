@@ -24,6 +24,7 @@ enum AppDestination: Hashable, Identifiable, Codable {
     case contactsFriends
     case registration
     case profileSettings(userId: String)
+    case locketPost(postId: String)
 
     var id: String {
         switch self {
@@ -59,6 +60,8 @@ enum AppDestination: Hashable, Identifiable, Codable {
             return "registration"
         case .profileSettings(let id):
             return "profileSettings_\(id)"
+        case .locketPost(let id):
+            return "locketPost_\(id)"
         }
     }
     
@@ -115,7 +118,8 @@ enum AppDestination: Hashable, Identifiable, Codable {
         "createGroup": (nil, { _ in .createGroup }),
         "group": ("id", { .groupDetail(groupId: $0) }),
         "contactsFriends": (nil, { _ in .contactsFriends }),
-        "registration": (nil, { _ in .registration })
+        "registration": (nil, { _ in .registration }),
+        "locketPost": ("id", { .locketPost(postId: $0) })
     ]
 }
 

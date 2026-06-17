@@ -24,7 +24,7 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 
 > The owner has explicitly asked for this next. Do this before anything else.
 
-- [ ] 🟡 **Locket-style quick-post sheet (`QuickPostView`)** — replace the current multi-section
+- [x] 🟡 **Locket-style quick-post sheet (`QuickPostView`)** — replace the current multi-section
   form (`CreatePostView`) with a photo-first, one-screen posting experience:
 
   **What to build:**

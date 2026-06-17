@@ -98,7 +98,7 @@ struct TodayView: View {
                     CircleTileView(post: post, usersStore: usersStore)
                         .onTapGesture {
                             guard let id = post.id else { return }
-                            router.navigate(to: .postDetail(postId: id))
+                            router.navigate(to: .locketPost(postId: id))
                         }
                         .onAppear { loadMoreIfNeeded(for: post) }
                 }
