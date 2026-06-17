@@ -39,6 +39,10 @@ enum AnalyticsEvent: Equatable {
     case streakFreezeUsed
     case streakFreezeEarned
 
+    // MARK: A/B experimentation
+    /// Logged once per session per experiment so bucketing can be correlated with outcomes.
+    case experimentAssigned(experiment: String, bucket: String)
+
     // MARK: Deep linking
     case deepLinkOpened(route: String)
 
@@ -74,6 +78,7 @@ enum AnalyticsEvent: Equatable {
         case .leveledUp:            return "leveled_up"
         case .streakFreezeUsed:     return "streak_freeze_used"
         case .streakFreezeEarned:   return "streak_freeze_earned"
+        case .experimentAssigned:   return "experiment_assigned"
         case .deepLinkOpened:       return "deep_link_opened"
         }
     }
@@ -89,6 +94,8 @@ enum AnalyticsEvent: Equatable {
             return ["streak": "\(value)"]
         case .leveledUp(let level):
             return ["level": "\(level)"]
+        case .experimentAssigned(let exp, let bkt):
+            return ["experiment": exp, "bucket": bkt]
         case .deepLinkOpened(let route):
             return ["route": route]
         default:

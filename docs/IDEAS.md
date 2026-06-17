@@ -85,11 +85,11 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 
 ## A/B testing & experimentation
 
-- [ ] 🟢 **Lightweight experiment framework** — an `Experiment` enum + a deterministic bucketing
+- [x] 🟢 **Lightweight experiment framework** — an `Experiment` enum + a deterministic bucketing
   function (`hash(uid + experimentKey) % 100 < rolloutPct`). 100% pure, 100% testable, no SDK.
-  Lets the routine ship features behind flags safely.
-- [ ] 🟢 **Experiment assignment logging** — record which bucket a user landed in (see logging
-  section) so results are measurable.
+  Lets the routine ship features behind flags safely. *(shipped: Experiment.swift + ExperimentTests.swift)*
+- [x] 🟢 **Experiment assignment logging** — record which bucket a user landed in (see logging
+  section) so results are measurable. *(shipped: AnalyticsEvent.experimentAssigned)*
 - [ ] 🟡 **Firebase Remote Config wiring** — drive experiment rollout %s remotely. 🔴 Needs Remote
   Config enabled in the Firebase console; keep the pure bucketing logic provider-agnostic so it
   works with hardcoded defaults until then.
