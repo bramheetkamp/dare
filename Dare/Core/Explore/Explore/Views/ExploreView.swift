@@ -16,23 +16,9 @@ struct ExploreView: View {
         ZStack {
             ScrollView {
                 LazyVStack(spacing: 16) {
-                    InteractiveButton(
-                        action: {
-                            router.navigate(to: .searchPeople)
-                        },
-                        backgroundColor: Color("cell"),
-                        cornerRadius: Style.CornerRadius.small,
-                        padding: 10,
-                        scaleEffect: true
-                    ) {
-                        HStack {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundColor(Color("detailText"))
-                            Text("Search people")
-                                .foregroundColor(Color("detailText"))
-                            Spacer()
-                        }
-                    }
+                    discoveryEntry(icon: "magnifyingglass", title: "Search people", destination: .searchPeople)
+                    discoveryEntry(icon: "person.2.fill", title: "Find friends from contacts", destination: .contactsFriends)
+                    discoveryEntry(icon: "person.3.fill", title: "Groups", destination: .searchGroups)
 
                     HeaderLabelView(text: "All categories")
                     
@@ -53,5 +39,27 @@ struct ExploreView: View {
             }
         }
         .padding(0)
+    }
+
+    private func discoveryEntry(icon: String, title: String, destination: AppDestination) -> some View {
+        InteractiveButton(
+            action: { router.navigate(to: destination) },
+            backgroundColor: Color("cell"),
+            cornerRadius: Style.CornerRadius.small,
+            padding: 12,
+            scaleEffect: true
+        ) {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .foregroundColor(Color("detailText"))
+                Text(title)
+                    .font(Style.Typography.body)
+                    .foregroundColor(Color("detailText"))
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Color("detailText"))
+            }
+        }
     }
 }

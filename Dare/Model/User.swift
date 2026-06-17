@@ -21,6 +21,13 @@ struct User: Identifiable, Decodable, Equatable, Hashable {
     var followersCount: Int?
     var followingCount: Int?
 
+    // MARK: Search / discovery (optional — older documents decode these as nil)
+    /// Lowercased full name, written on register/update so name search is case-insensitive.
+    var fullnameLower: String?
+    /// SHA-256 of the user's phone number in E.164 form. Lets contacts be matched without ever
+    /// storing or transmitting a raw phone number. See `PhoneNumberHasher`.
+    var phoneHash: String?
+
     // MARK: Gamification (optional — older documents decode these as nil)
     var points: Int?
     var currentStreak: Int?

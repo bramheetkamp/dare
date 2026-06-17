@@ -20,14 +20,18 @@ Run these steps every time:
    not exist, create `claude` from the latest `origin/develop`.
 
 2. **Read context.** Read `CLAUDE.md` (especially **Product Vision & Direction** and **Known tech
-   debt**), `docs/MARKET_ANALYSIS.md`, and the last few commits. Understand the current direction
-   before touching anything.
+   debt**), `docs/MARKET_ANALYSIS.md`, `docs/IDEAS.md` (the backlog menu), and the last few
+   commits. Understand the current direction before touching anything.
 
 3. **Pick exactly ONE high-value, self-contained increment.** Never a sprawling change. Priority
    order: (a) features that advance the product vision — goals/mastery journeys, seeing what
    friends are into, collective/local-group goals, the "you a year ago" progress view, the
    quick-pic-+-note primitive, the calm home grid + goal hero card; (b) listed tech debt; (c)
-   tests/polish. State in one sentence what you picked and why.
+   tests/polish. `docs/IDEAS.md` is the standing menu of candidates for (a)/(b) — prefer 🟢
+   self-contained items, and skip 🔴 items that need human setup (signing, Firebase/AdMob console,
+   new extension targets) unless that setup is already done. When you ship an idea, check it off
+   in `docs/IDEAS.md` (`- [x]`) as part of the same commit. State in one sentence what you picked
+   and why.
 
 4. **Implement it** following repo conventions: Firebase only in `Service/`; keep pure logic out
    of Firebase types and unit-test it; MVVM + observable stores + central router; new `.swift`

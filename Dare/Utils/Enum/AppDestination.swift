@@ -18,6 +18,10 @@ enum AppDestination: Hashable, Identifiable, Codable {
     case home
     case explore
     case searchPeople
+    case searchGroups
+    case createGroup
+    case groupDetail(groupId: String)
+    case contactsFriends
     case registration
     case profileSettings(userId: String)
 
@@ -43,6 +47,14 @@ enum AppDestination: Hashable, Identifiable, Codable {
             return "explore"
         case .searchPeople:
             return "searchPeople"
+        case .searchGroups:
+            return "searchGroups"
+        case .createGroup:
+            return "createGroup"
+        case .groupDetail(let id):
+            return "groupDetail_\(id)"
+        case .contactsFriends:
+            return "contactsFriends"
         case .registration:
             return "registration"
         case .profileSettings(let id):
@@ -99,6 +111,10 @@ enum AppDestination: Hashable, Identifiable, Codable {
         "home": (nil, { _ in .home }),
         "explore": (nil, { _ in .explore }),
         "searchPeople": (nil, { _ in .searchPeople }),
+        "searchGroups": (nil, { _ in .searchGroups }),
+        "createGroup": (nil, { _ in .createGroup }),
+        "group": ("id", { .groupDetail(groupId: $0) }),
+        "contactsFriends": (nil, { _ in .contactsFriends }),
         "registration": (nil, { _ in .registration })
     ]
 }

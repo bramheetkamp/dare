@@ -12,10 +12,17 @@ import FirebaseAuth
 struct UserRowView: View {
     @ObservedObject var viewModel: UserRowViewModel
     @EnvironmentObject private var router: AppRouter
+    var onSelect: (() -> Void)?
+
+    private var subtitle: String {
+        if viewModel.user.id == Auth.auth().currentUser?.uid { return "You" }
+        return viewModel.user.fullname
+    }
 
     var body: some View {
         Button {
             guard let userId = viewModel.user.id, !userId.isEmpty else { return }
+            onSelect?()
             router.navigate(to: .profile(userId: userId))
         } label: {
             HStack(spacing: 12) {
@@ -27,11 +34,13 @@ struct UserRowView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("@\(viewModel.user.username)")
-                        .font(.subheadline).bold()
+                        .font(Style.Typography.bodyStrong)
                         .foregroundColor(Color("headerText"))
-                    Text(viewModel.user.id == Auth.auth().currentUser?.uid ? "You" : ("@\(viewModel.user.username)"))
-                        .font(.subheadline)
-                        .foregroundColor(Color("detailText"))
+                    if !subtitle.isEmpty {
+                        Text(subtitle)
+                            .font(Style.Typography.secondary)
+                            .foregroundColor(Color("detailText"))
+                    }
                 }
                 Spacer()
             }

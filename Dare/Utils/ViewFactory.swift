@@ -63,6 +63,26 @@ struct ViewFactory {
                 SearchUsersView()
                     .environmentObject(router)
             )
+        case .searchGroups:
+            return AnyView(
+                GroupSearchView()
+                    .environmentObject(router)
+            )
+        case .createGroup:
+            return AnyView(
+                CreateGroupView()
+                    .environmentObject(router)
+            )
+        case .groupDetail(let groupId):
+            return AnyView(
+                GroupDetailView(groupId: groupId)
+                    .environmentObject(router)
+            )
+        case .contactsFriends:
+            return AnyView(
+                ContactsFriendsView()
+                    .environmentObject(router)
+            )
         case .registration:
             return AnyView(
                 RegistrationView()

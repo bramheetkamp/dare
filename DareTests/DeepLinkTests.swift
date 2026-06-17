@@ -55,4 +55,19 @@ struct DeepLinkTests {
         let url = try #require(URL(string: "dare://open/post?id=z9"))
         #expect(AppDestination.from(url: url) == .postDetail(postId: "z9"))
     }
+
+    @Test func parsesGroupWithId() throws {
+        let url = try #require(URL(string: "dare://group?id=g42"))
+        #expect(AppDestination.from(url: url) == .groupDetail(groupId: "g42"))
+    }
+
+    @Test func parsesSearchGroups() throws {
+        let url = try #require(URL(string: "dare://searchGroups"))
+        #expect(AppDestination.from(url: url) == .searchGroups)
+    }
+
+    @Test func parsesContactsFriends() throws {
+        let url = try #require(URL(string: "dare://contactsFriends"))
+        #expect(AppDestination.from(url: url) == .contactsFriends)
+    }
 }

@@ -146,3 +146,10 @@ and extend `AppDestination.from` (it already accepts `https` paths).
 - `UserService.fetchUsers()` and the non‑paginated `CommentService.fetchComments` are unbounded.
 - Stores have no eviction/TTL.
 - `Feed 2` / `TestFeed` is a prototype — finish or remove it.
+
+## Backlog / ideas
+
+> Standing menu of self-contained increments to pull from: [`docs/IDEAS.md`](docs/IDEAS.md)
+> (widgets, notifications, competitions, ads positioning, sponsored challenges, A/B testing,
+> view logging/analytics, Sign in with Apple, and polish). The hourly routine
+> ([`docs/ROUTINE_PROMPT.md`](docs/ROUTINE_PROMPT.md)) reads it each run. Check items off when shipped.

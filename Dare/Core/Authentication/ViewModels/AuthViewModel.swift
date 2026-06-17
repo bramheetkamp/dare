@@ -83,6 +83,8 @@ class AuthViewModel: ObservableObject {
                 "email": email,
                 "username": username.lowercased(),
                 "fullname": fullname,
+                // Lowercased copy so name search is case-insensitive (see UserService.searchUsers).
+                "fullnameLower": fullname.lowercased(),
                 "uid": authUser.uid,
                 // Ensure this exists to satisfy Dare.User Decodable requirements
                 "timestamp": Timestamp(date: Date())
@@ -140,6 +142,21 @@ class AuthViewModel: ObservableObject {
     }
 
     // MARK: - User Management
+
+    /// Stores the signed-in user's phone number as a one-way hash so friends can find them via
+    /// their contacts. The raw number is never persisted — only `PhoneNumberHasher.hash`.
+    /// Returns false via completion if the number couldn't be parsed.
+    func setPhoneNumber(_ rawNumber: String, completion: ((Bool) -> Void)? = nil) {
+        guard let uid = currentUser?.id else { completion?(false); return }
+        guard let hash = PhoneNumberHasher.hash(rawNumber) else { completion?(false); return }
+
+        Firestore.firestore().collection("users")
+            .document(uid)
+            .updateData(["phoneHash": hash]) { [weak self] error in
+                self?.refreshCurrentUser()
+                completion?(error == nil)
+            }
+    }
 
     func uploadProfileImage(_ image: UIImage, completion: (() -> Void)? = nil) {
         guard let uid = currentUser?.id else { return }

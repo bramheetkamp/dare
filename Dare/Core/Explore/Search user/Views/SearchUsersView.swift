@@ -10,9 +10,10 @@ import SwiftUI
 struct SearchUsersView: View {
     
     @EnvironmentObject private var usersStore: UsersStore
-    
+    @EnvironmentObject private var recentSearches: RecentSearchesStore
+
     var body: some View {
-        SearchUsersContentView(usersStore: usersStore)
+        SearchUsersContentView(usersStore: usersStore, recentSearches: recentSearches)
     }
     
 }

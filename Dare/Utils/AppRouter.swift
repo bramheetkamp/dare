@@ -102,6 +102,8 @@ class AppRouter: ObservableObject {
             return URL(string: "\(scheme)category?id=\(categoryId)")
         case .profile(let userId):
             return URL(string: "\(scheme)profile?id=\(userId)")
+        case .groupDetail(let groupId):
+            return URL(string: "\(scheme)group?id=\(groupId)")
         default:
             return nil
         }

@@ -6,90 +6,124 @@
 //
 
 import SwiftUI
-import FirebaseFirestore
 import FirebaseAuth
 
 class SearchUsersViewModel: ObservableObject {
-    
+
     // MARK: - Published Properties
-    
+
+    /// Results for the active search term.
     @Published var users: [User] = []
+    /// Friends-of-friends, shown when the search term is empty.
+    @Published var suggested: [User] = []
+    /// Recently viewed people, shown when the search term is empty.
+    @Published var recent: [User] = []
+
     @Published var isLoading = false
     @Published var hasMorePosts = true
-    
-    // MARK: - Private Services
-    
+
+    // MARK: - Services / State
+
     private let userService = UserService()
-    
-    // MARK: - Private State
-    
-    private var lastDocument: DocumentSnapshot? = nil
-    private let pageSize = 15
+    private let friendService = FriendService()
     private let usersStore: UsersStore
-    
-    init(usersStore: UsersStore) {
-        self.usersStore = usersStore
+    private let recentSearches: RecentSearchesStore
+
+    private let pageSize = 15
+    private let maxResults = 90
+    private var currentLimit = 15
+
+    var hasQuery: Bool {
+        !usersStore.searchFriendsTerm.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
-    
-    // MARK: - Fetching Users
-    
+
+    init(usersStore: UsersStore, recentSearches: RecentSearchesStore) {
+        self.usersStore = usersStore
+        self.recentSearches = recentSearches
+    }
+
+    // MARK: - Search
+
     func fetchUsers() {
         let currentSearch = usersStore.searchFriendsTerm.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+
         guard !currentSearch.isEmpty else {
             users.removeAll()
-            lastDocument = nil
+            currentLimit = pageSize
             hasMorePosts = true
             usersStore.currentFriendsTerm = ""
             isLoading = false
             return
         }
-        
+
+        // New term → reset the growing-limit window.
         if usersStore.currentFriendsTerm != currentSearch {
             users.removeAll()
-            lastDocument = nil
+            currentLimit = pageSize
             hasMorePosts = true
             usersStore.currentFriendsTerm = currentSearch
         }
-        
-        guard !isLoading, hasMorePosts else { return }
+
+        guard !isLoading else { return }
         isLoading = true
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.userService.fetchUsers(searchText: currentSearch, limit: self.pageSize, lastDocument: self.lastDocument) { [weak self] newUsers, lastDoc in
-                guard let self = self else { return }
-                
-                if usersStore.currentFriendsTerm != currentSearch {
-                    self.isLoading = false
-                    return
-                }
-                
-                if newUsers.isEmpty {
-                    self.hasMorePosts = false
-                } else {
-                    self.users.append(contentsOf: newUsers)
-                }
-                
-                self.lastDocument = lastDoc
+
+        userService.searchUsers(matching: currentSearch, limit: currentLimit) { [weak self] results in
+            guard let self = self else { return }
+            // Discard if the term changed while in flight.
+            guard self.usersStore.currentFriendsTerm == currentSearch else {
                 self.isLoading = false
+                return
+            }
+            self.users = results
+            self.hasMorePosts = results.count >= self.currentLimit && self.currentLimit < self.maxResults
+            self.isLoading = false
+        }
+    }
+
+    /// Grows the result window. Re-queries from the start (the combined search isn't cursor-based),
+    /// replacing `users` with the larger set — so no duplicates and no cursor bookkeeping.
+    func loadMore() {
+        guard hasQuery, hasMorePosts, !isLoading else { return }
+        currentLimit = min(currentLimit + pageSize, maxResults)
+        fetchUsers()
+    }
+
+    // MARK: - Empty-state content
+
+    func loadSuggestions() {
+        guard let uid = Auth.auth().currentUser?.uid, suggested.isEmpty else { return }
+        friendService.fetchRecommendedFriends(currentUserId: uid) { [weak self] ids in
+            self?.userService.fetchUsers(byIds: ids) { users in
+                self?.suggested = users
             }
         }
     }
-    
+
+    func loadRecent() {
+        let ids = recentSearches.userIds
+        guard !ids.isEmpty else { recent = []; return }
+        userService.fetchUsers(byIds: ids) { [weak self] users in
+            self?.recent = users
+        }
+    }
+
+    func recordVisit(_ user: User) {
+        guard let id = user.id else { return }
+        recentSearches.record(id)
+    }
+
+    // MARK: - Updates
+
     func updateUser(_ updatedUser: User) {
         if let index = users.firstIndex(where: { $0.id == updatedUser.id }) {
             users[index] = updatedUser
             objectWillChange.send()
         }
     }
-    
-    
-    // MARK: - Pagination Reset
-    
+
     func resetPagination() {
         users.removeAll()
-        lastDocument = nil
+        currentLimit = pageSize
         hasMorePosts = true
     }
-    
 }

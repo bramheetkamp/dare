@@ -16,6 +16,8 @@ struct DareApp: App {
     @StateObject private var usersStore = UsersStore()
     @StateObject private var challengesStore = ChallengesStore()
     @StateObject private var playerManager = PlayerManager()
+    @StateObject private var groupsStore = GroupsStore()
+    @StateObject private var recentSearches = RecentSearchesStore()
 
     @AppStorage("appearanceMode") private var appearanceMode: AppearanceMode = .system
 
@@ -32,6 +34,8 @@ struct DareApp: App {
                 .environmentObject(usersStore)
                 .environmentObject(challengesStore)
                 .environmentObject(playerManager)
+                .environmentObject(groupsStore)
+                .environmentObject(recentSearches)
                 .preferredColorScheme(appearanceMode.colorScheme)
                 .onOpenURL { url in
                     router.handle(url: url)
