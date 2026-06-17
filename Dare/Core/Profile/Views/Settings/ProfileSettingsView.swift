@@ -18,6 +18,7 @@ struct ProfileSettingsView: View {
 
     @State private var showImagePicker = false
     @State private var pickedImage: UIImage?
+    @State private var weeklyRitualOn: Bool = true
 
     init(userId: String) {
         self.userId = userId
@@ -39,6 +40,8 @@ struct ProfileSettingsView: View {
                 }
 
                 appearanceSection
+
+                notificationsSection
 
                 InteractiveButton(
                     action: {
@@ -70,6 +73,9 @@ struct ProfileSettingsView: View {
         .withStandardPageStyle(title: "Settings", extendView: false)
         .sheet(isPresented: $showImagePicker, onDismiss: uploadPickedImage) {
             ImagePicker(selectedImage: $pickedImage)
+        }
+        .onAppear {
+            weeklyRitualOn = authViewModel.currentUser?.notificationPrefs?.weeklyRitual ?? true
         }
     }
 
@@ -109,6 +115,40 @@ struct ProfileSettingsView: View {
                 }
             }
             .pickerStyle(.segmented)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.cell)
+        .clipShape(RoundedRectangle(cornerRadius: Style.CornerRadius.small))
+    }
+
+    private var notificationsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Notifications")
+                .font(Style.Typography.sectionTitle)
+                .foregroundColor(.headerText)
+
+            Toggle(isOn: $weeklyRitualOn) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Weekly goal update")
+                        .font(Style.Typography.bodyStrong)
+                        .foregroundColor(.primary)
+                    Text("A gentle Sunday nudge to share your progress")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .tint(Color("primaryButton"))
+            .onChange(of: weeklyRitualOn) { _, enabled in
+                let prefs = NotificationPrefs(weeklyRitual: enabled)
+                UserService().updateNotificationPrefs(uid: userId, prefs: prefs)
+                let notifService = NotificationService()
+                if enabled {
+                    notifService.scheduleWeeklyRitual()
+                } else {
+                    notifService.cancelWeeklyRitual()
+                }
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)

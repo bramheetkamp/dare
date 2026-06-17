@@ -98,8 +98,8 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 - [ ] 🟡 **Push notifications (FCM)** for: new follower, comment on your post, friend completed a
   goal. 🔴 Needs APNs key + Firebase Cloud Messaging console setup + a Cloud Function or backend
   to send. Start with the client token registration + a `NotificationService` stub in `Service/`.
-- [ ] 🟢 **Notification settings section** in `ProfileSettingsView` — per-type toggles persisted
-  to the user doc (`notificationPrefs`). Pure model + a service write.
+- [x] 🟢 **Notification settings section** in `ProfileSettingsView` — per-type toggles persisted
+  to the user doc (`notificationPrefs`). Pure model + a service write. *(shipped: NotificationPrefs + UserService.updateNotificationPrefs + ProfileSettingsView notificationsSection + NotificationPrefsTests)*
 - [ ] 🟢 **"You a year ago" resurfacing notification** — once the timestamped posts exist, a
   weekly look-back nudge. Pure date-selection logic (find a post ~365 days ago) → unit-testable.
 

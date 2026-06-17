@@ -132,6 +132,18 @@ struct UserService {
 
     /// Returns Dare users whose `phoneHash` matches one of the supplied hashes. The raw phone
     /// number never leaves the device — only its hash (see `PhoneNumberHasher`) is queried.
+    // MARK: - Notification Preferences
+
+    /// Persists the user's notification preferences to Firestore as a nested map.
+    /// Uses dot-notation keys so only the changed fields are written (merge-safe).
+    func updateNotificationPrefs(uid: String, prefs: NotificationPrefs) {
+        userDocument(uid).updateData([
+            "\(NotificationPrefs.firestoreKey).weeklyRitual": prefs.weeklyRitual
+        ]) { error in
+            if let error { print("updateNotificationPrefs failed: \(error.localizedDescription)") }
+        }
+    }
+
     func findUsers(byPhoneHashes hashes: [String], completion: @escaping ([User]) -> Void) {
         let uniqueHashes = hashes.reduced()
         guard !uniqueHashes.isEmpty else { completion([]); return }

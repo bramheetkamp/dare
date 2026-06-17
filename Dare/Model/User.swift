@@ -35,6 +35,9 @@ struct User: Identifiable, Decodable, Equatable, Hashable {
     var lastActiveAt: Timestamp?
     /// Earned freeze tokens. A freeze protects the streak when the user misses one period.
     var streakFreezeCount: Int?
+
+    // MARK: Notification preferences (optional — older documents decode to nil)
+    var notificationPrefs: NotificationPrefs?
 }
 
 extension User {
