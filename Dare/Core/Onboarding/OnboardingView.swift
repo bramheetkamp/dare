@@ -21,6 +21,7 @@ struct OnboardingView: View {
     var onFinish: () -> Void
 
     @State private var index = 0
+    @State private var showNotificationPriming = false
     @Environment(\.trackAnalyticsEvent) private var track
 
     private let pages: [OnboardingPage] = [
@@ -79,7 +80,7 @@ struct OnboardingView: View {
             Button {
                 if isLastPage {
                     track(.onboardingCompleted)
-                    onFinish()
+                    showNotificationPriming = true
                 } else {
                     withAnimation { index += 1 }
                 }
@@ -94,6 +95,14 @@ struct OnboardingView: View {
             }
             .padding(.horizontal, 32)
             .padding(.bottom, 24)
+            .sheet(isPresented: $showNotificationPriming) {
+                NotificationPermissionView {
+                    showNotificationPriming = false
+                    onFinish()
+                }
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+            }
         }
         .trackScreen(.onboarding)
         .onAppear {

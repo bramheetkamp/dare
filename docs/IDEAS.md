@@ -90,11 +90,11 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 
 ## Notifications (retention / re-engagement)
 
-- [ ] 🟡 **Local notification for the weekly ritual** — a gentle weekly (never daily) nudge to
+- [x] 🟡 **Local notification for the weekly ritual** — a gentle weekly (never daily) nudge to
   post a goal update. Schedule with `UNUserNotificationCenter`; respect a user opt-in flag.
-  Vision-aligned: weekly ritual, not a daily mandatory prompt.
-- [ ] 🟢 **Notification permission priming screen** in onboarding — explain the value before the
-  iOS prompt (boosts opt-in rate). Gate the system prompt behind a tap.
+  Vision-aligned: weekly ritual, not a daily mandatory prompt. *(shipped: NotificationService + scheduleWeeklyRitual)*
+- [x] 🟢 **Notification permission priming screen** in onboarding — explain the value before the
+  iOS prompt (boosts opt-in rate). Gate the system prompt behind a tap. *(shipped: NotificationPermissionView, wired into OnboardingView "Get started")*
 - [ ] 🟡 **Push notifications (FCM)** for: new follower, comment on your post, friend completed a
   goal. 🔴 Needs APNs key + Firebase Cloud Messaging console setup + a Cloud Function or backend
   to send. Start with the client token registration + a `NotificationService` stub in `Service/`.

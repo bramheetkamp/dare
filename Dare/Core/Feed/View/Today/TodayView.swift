@@ -51,7 +51,7 @@ struct TodayView: View {
 
                 AYearAgoCard(memories: memories.memories) { memory in
                     guard let id = memory.id else { return }
-                    router.navigate(to: .postDetail(postId: id))
+                    router.navigate(to: .locketPost(postId: id))
                 }
 
                 circleSection
