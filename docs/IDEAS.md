@@ -100,8 +100,9 @@ Ring tags map to the product vision in `../CLAUDE.md`.
   to send. Start with the client token registration + a `NotificationService` stub in `Service/`.
 - [x] 🟢 **Notification settings section** in `ProfileSettingsView` — per-type toggles persisted
   to the user doc (`notificationPrefs`). Pure model + a service write. *(shipped: NotificationPrefs + UserService.updateNotificationPrefs + ProfileSettingsView notificationsSection + NotificationPrefsTests)*
-- [ ] 🟢 **"You a year ago" resurfacing notification** — once the timestamped posts exist, a
+- [x] 🟢 **"You a year ago" resurfacing notification** — once the timestamped posts exist, a
   weekly look-back nudge. Pure date-selection logic (find a post ~365 days ago) → unit-testable.
+  *(shipped: YearAgoNotificationLogic + YearAgoNotificationLogicTests + NotificationService.scheduleYearAgoReminder + wired into AYearAgoViewModel)*
 
 ## Competitions & collective goals (Ring 2 — engagement)
 
@@ -180,8 +181,9 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 
 ## Fun / polish / "official good additions"
 
-- [ ] 🟢 **"You, a year ago" view** — the emotional moat. A screen that surfaces your post(s) from
+- [x] 🟢 **"You, a year ago" view** — the emotional moat. A screen that surfaces your post(s) from
   ~52 weeks ago. Pure date-window selection over cached posts → unit-testable. High vision value.
+  *(shipped: AYearAgoCard + AYearAgoViewModel wired into TodayView, PostFetchService.fetchPosts(uid:from:to:))*
 - [ ] 🟢 **Empty-state & loading polish** — friendly empty states for an empty feed / no goals yet
   / no followers, nudging the first action. Pure view work.
 - [ ] 🟢 **Haptics on key moments** — streak increment, goal update posted, level up. Small, fun,
