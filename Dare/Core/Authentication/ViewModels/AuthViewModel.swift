@@ -48,7 +48,7 @@ class AuthViewModel: ObservableObject {
     func login(withEmail email: String, password: String, onFailure: ((String) -> Void)? = nil) {
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
             if let error = error {
-                onFailure?(error.localizedDescription)
+                onFailure?(AuthErrorMapper.friendlyMessage(for: error))
                 print("DEBUG: Failed to login with error \(error.localizedDescription)")
                 return
             }
@@ -72,7 +72,7 @@ class AuthViewModel: ObservableObject {
     func register(withEmail email: String, password: String, fullname: String, username: String, onFailure: ((String) -> Void)? = nil) {
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             if let error = error {
-                onFailure?(error.localizedDescription)
+                onFailure?(AuthErrorMapper.friendlyMessage(for: error))
                 print("DEBUG: Failed to register with error \(error.localizedDescription)")
                 return
             }

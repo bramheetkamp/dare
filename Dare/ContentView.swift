@@ -89,7 +89,7 @@ extension ContentView {
 
                     if let user = viewModel.currentUser {
                         ToolbarItem(placement: .navigationBarLeading) {
-                            StreakBadgeView(streak: user.streak, points: user.totalPoints)
+                            StreakBadgeView(streak: user.streak, points: user.totalPoints, freezeCount: user.freezeCount)
                         }
                     }
 

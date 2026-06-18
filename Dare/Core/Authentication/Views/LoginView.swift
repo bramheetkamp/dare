@@ -126,7 +126,7 @@ struct LoginView: View {
             case .success:
                 resetConfirmation = "We sent a password-reset link to \(trimmed)."
             case .failure(let error):
-                errorMessage = error.localizedDescription
+                errorMessage = AuthErrorMapper.friendlyMessage(for: error)
                 showErrorPopup = true
             }
         }

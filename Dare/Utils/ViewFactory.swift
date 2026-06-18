@@ -39,7 +39,7 @@ struct ViewFactory {
             )
         case .createPost(let challengeId):
             return AnyView(
-                CreatePostView(challengeId: challengeId)
+                QuickPostView(challengeId: challengeId)
                     .environmentObject(router)
             )
             
@@ -91,6 +91,11 @@ struct ViewFactory {
         case .profileSettings(let userId):
             return AnyView(
                 ProfileSettingsView(userId: userId)
+                    .environmentObject(router)
+            )
+        case .locketPost(let postId):
+            return AnyView(
+                LocketPostView(postId: postId)
                     .environmentObject(router)
             )
         }

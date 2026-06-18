@@ -21,6 +21,8 @@ struct DareApp: App {
 
     @AppStorage("appearanceMode") private var appearanceMode: AppearanceMode = .system
 
+    private let analyticsService = ConsoleAnalyticsService()
+
     init() {
         FirebaseApp.configure()
     }
@@ -28,6 +30,7 @@ struct DareApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .analyticsService(analyticsService)
                 .environmentObject(authViewModel)
                 .environmentObject(router)
                 .environmentObject(postsStore)

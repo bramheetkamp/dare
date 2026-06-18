@@ -104,6 +104,8 @@ class AppRouter: ObservableObject {
             return URL(string: "\(scheme)profile?id=\(userId)")
         case .groupDetail(let groupId):
             return URL(string: "\(scheme)group?id=\(groupId)")
+        case .locketPost(let postId):
+            return URL(string: "\(scheme)post?id=\(postId)")
         default:
             return nil
         }

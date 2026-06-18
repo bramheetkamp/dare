@@ -22,7 +22,15 @@ struct ActiveGoalHeroCard: View {
     }
 
     private func activeCard(_ goal: Challenge) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let now = Date()
+        let fraction = ChallengeSeasonLogic.progressFraction(
+            start: goal.endDate != nil ? goal.startDate : nil,
+            end: goal.endDate,
+            at: now
+        )
+        let daysLabel = ChallengeSeasonLogic.statusLabel(end: goal.endDate, from: now)
+
+        return VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
                 EmojiDisplaySquare(emojis: (goal.emojis ?? []).map { $0 as String? }, size: 40)
                 VStack(alignment: .leading, spacing: 2) {
@@ -36,6 +44,15 @@ struct ActiveGoalHeroCard: View {
                         .lineLimit(1)
                 }
                 Spacer(minLength: 0)
+                if let label = daysLabel {
+                    Text(label)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.white.opacity(0.9))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(.white.opacity(0.2))
+                        .clipShape(Capsule())
+                }
             }
 
             if !goal.caption.isEmpty {
@@ -43,6 +60,10 @@ struct ActiveGoalHeroCard: View {
                     .font(.subheadline)
                     .foregroundColor(.white.opacity(0.85))
                     .lineLimit(2)
+            }
+
+            if let fraction {
+                SeasonProgressBar(fraction: fraction)
             }
 
             primaryButton(title: "Post an update", icon: "camera.fill", action: onPost)
@@ -102,5 +123,26 @@ struct ActiveGoalHeroCard: View {
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Season progress bar
+
+/// A thin horizontal bar showing how far through the season the goal is.
+private struct SeasonProgressBar: View {
+    let fraction: Double   // 0…1
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(.white.opacity(0.25))
+                    .frame(height: 4)
+                Capsule()
+                    .fill(.white)
+                    .frame(width: max(4, geo.size.width * fraction), height: 4)
+            }
+        }
+        .frame(height: 4)
     }
 }

@@ -33,6 +33,11 @@ struct User: Identifiable, Decodable, Equatable, Hashable {
     var currentStreak: Int?
     var longestStreak: Int?
     var lastActiveAt: Timestamp?
+    /// Earned freeze tokens. A freeze protects the streak when the user misses one period.
+    var streakFreezeCount: Int?
+
+    // MARK: Notification preferences (optional — older documents decode to nil)
+    var notificationPrefs: NotificationPrefs?
 }
 
 extension User {
@@ -49,4 +54,5 @@ extension User {
     var streak: Int { currentStreak ?? 0 }
     var bestStreak: Int { longestStreak ?? 0 }
     var level: Int { GamificationLevel.level(for: totalPoints) }
+    var freezeCount: Int { streakFreezeCount ?? 0 }
 }

@@ -21,6 +21,8 @@ struct OnboardingView: View {
     var onFinish: () -> Void
 
     @State private var index = 0
+    @State private var showNotificationPriming = false
+    @Environment(\.trackAnalyticsEvent) private var track
 
     private let pages: [OnboardingPage] = [
         OnboardingPage(
@@ -55,12 +57,15 @@ struct OnboardingView: View {
         VStack {
             HStack {
                 Spacer()
-                Button("Log in", action: onFinish)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(Color("primaryButton"))
-                    .padding()
-                    .opacity(isLastPage ? 0 : 1)
-                    .disabled(isLastPage)
+                Button("Log in") {
+                    track(.onboardingCompleted)
+                    onFinish()
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(Color("primaryButton"))
+                .padding()
+                .opacity(isLastPage ? 0 : 1)
+                .disabled(isLastPage)
             }
 
             TabView(selection: $index) {
@@ -74,7 +79,8 @@ struct OnboardingView: View {
 
             Button {
                 if isLastPage {
-                    onFinish()
+                    track(.onboardingCompleted)
+                    showNotificationPriming = true
                 } else {
                     withAnimation { index += 1 }
                 }
@@ -89,6 +95,22 @@ struct OnboardingView: View {
             }
             .padding(.horizontal, 32)
             .padding(.bottom, 24)
+            .sheet(isPresented: $showNotificationPriming) {
+                NotificationPermissionView {
+                    showNotificationPriming = false
+                    onFinish()
+                }
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+            }
+        }
+        .trackScreen(.onboarding)
+        .onAppear {
+            track(.onboardingStarted)
+            track(.onboardingPageViewed(index: 0))
+        }
+        .onChange(of: index) { _, newIndex in
+            track(.onboardingPageViewed(index: newIndex))
         }
     }
 
