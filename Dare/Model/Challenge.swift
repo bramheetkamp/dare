@@ -24,6 +24,10 @@ struct Challenge: Identifiable, Decodable, Equatable, Hashable {
     var startsAt: Timestamp?
     var endsAt: Timestamp?
 
+    // UIDs of users who have explicitly joined this goal (creator is NOT auto-included).
+    // Old documents decode to nil (backward-compatible).
+    var participants: [String]?
+
     var user: User?
 
     // MARK: - Convenience accessors (plain Date, no Firestore dependency for callers)
@@ -32,4 +36,16 @@ struct Challenge: Identifiable, Decodable, Equatable, Hashable {
     var startDate: Date { (startsAt ?? timestamp).dateValue() }
     /// The season end date, or nil if the challenge runs indefinitely.
     var endDate: Date? { endsAt?.dateValue() }
+
+    // MARK: - Participation helpers
+
+    /// `true` if `uid` has explicitly joined this goal.
+    func isJoined(by uid: String) -> Bool {
+        GoalParticipation.isJoined(participants: participants, uid: uid)
+    }
+
+    /// Number of users who have joined this goal (excluding the creator).
+    var participantCount: Int {
+        GoalParticipation.participantCount(participants: participants)
+    }
 }

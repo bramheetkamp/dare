@@ -25,10 +25,19 @@ class ChallengeDetailViewModel: ObservableObject {
     @Published var hasMorePosts = true
     @Published var isFirstLoad = true
     
-    var actionHeaderButtonTitle: String {
-        guard let _ = challenge else { return "" }
-        return "Let me try this"
+    // MARK: - Participation state
+
+    var isCurrentUserCreator: Bool {
+        guard let uid = Auth.auth().currentUser?.uid else { return false }
+        return challenge?.uid == uid
     }
+
+    var isCurrentUserJoined: Bool {
+        guard let uid = Auth.auth().currentUser?.uid else { return false }
+        return challenge?.isJoined(by: uid) ?? false
+    }
+
+    var participantCount: Int { challenge?.participantCount ?? 0 }
     
     // MARK: - Private Services
     
@@ -99,5 +108,26 @@ class ChallengeDetailViewModel: ObservableObject {
         posts.removeAll()
         lastDocument = nil
         hasMorePosts = true
+    }
+
+    // MARK: - Join / Leave
+
+    func toggleJoin() {
+        guard let uid = Auth.auth().currentUser?.uid, let id = challenge?.id else { return }
+        let wasJoined = isCurrentUserJoined
+
+        // Optimistic update — reflect in UI immediately.
+        if wasJoined {
+            challenge?.participants?.removeAll { $0 == uid }
+        } else {
+            if challenge?.participants == nil { challenge?.participants = [] }
+            challenge?.participants?.append(uid)
+        }
+
+        if wasJoined {
+            challengeService.leaveGoal(uid: uid, challengeId: id)
+        } else {
+            challengeService.joinGoal(uid: uid, challengeId: id)
+        }
     }
 }

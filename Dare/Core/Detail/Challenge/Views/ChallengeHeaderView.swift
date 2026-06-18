@@ -9,8 +9,7 @@ import SwiftUI
 import Kingfisher
 
 struct ChallengeHeaderView: View {
-    
-    @EnvironmentObject private var router: AppRouter
+
     @ObservedObject var viewModel: ChallengeDetailViewModel
     
     var body: some View {
@@ -34,22 +33,46 @@ struct ChallengeHeaderView: View {
                 }
                 .padding(.top, safeAreaTopPadding())
                 
-                InteractiveButtonStack(
-                    action: {
-                        handleCopyChallenge()
-                    },
-                    cornerRadius: Style.CornerRadius.small,
-                    backgroundColor: Color("secondaryButton")
-                ) {
-                    HStack {
-                        Text(viewModel.actionHeaderButtonTitle)
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .foregroundStyle(.white)
+                if viewModel.isCurrentUserCreator {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundColor(.white.opacity(0.85))
+                        Text("Your goal")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(.white.opacity(0.85))
+                        if viewModel.participantCount > 0 {
+                            Text("· \(viewModel.participantCount) joined")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.65))
+                        }
                     }
-                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                } else {
+                    InteractiveButtonStack(
+                        action: viewModel.toggleJoin,
+                        cornerRadius: Style.CornerRadius.small,
+                        backgroundColor: viewModel.isCurrentUserJoined
+                            ? Color.white.opacity(0.2)
+                            : Color("secondaryButton")
+                    ) {
+                        HStack(spacing: 6) {
+                            Image(systemName: viewModel.isCurrentUserJoined
+                                  ? "checkmark" : "person.badge.plus")
+                                .font(.subheadline.weight(.bold))
+                                .foregroundColor(.white)
+                            Text(viewModel.isCurrentUserJoined ? "Joined" : "Join Goal")
+                                .font(.subheadline.weight(.bold))
+                                .foregroundColor(.white)
+                            if viewModel.participantCount > 0 {
+                                Text("· \(viewModel.participantCount)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .frame(maxWidth: .infinity)
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -57,8 +80,5 @@ struct ChallengeHeaderView: View {
         }
     }
     
-    private func handleCopyChallenge() {
-        router.navigate(to: .createChallenge)
-    }
-    
 }
+

@@ -166,6 +166,26 @@ struct ChallengeService {
         }
     }
     
+    // MARK: - Goal participation
+
+    /// Adds `uid` to the goal's participants array (idempotent via arrayUnion).
+    func joinGoal(uid: String, challengeId: String, completion: ((Error?) -> Void)? = nil) {
+        Firestore.firestore().collection("challenges").document(challengeId)
+            .updateData(["participants": FieldValue.arrayUnion([uid])]) { error in
+                if let error { print("joinGoal failed: \(error.localizedDescription)") }
+                completion?(error)
+            }
+    }
+
+    /// Removes `uid` from the goal's participants array.
+    func leaveGoal(uid: String, challengeId: String, completion: ((Error?) -> Void)? = nil) {
+        Firestore.firestore().collection("challenges").document(challengeId)
+            .updateData(["participants": FieldValue.arrayRemove([uid])]) { error in
+                if let error { print("leaveGoal failed: \(error.localizedDescription)") }
+                completion?(error)
+            }
+    }
+
     func fetchChallengeCategories(limit: Int = 50, completion: @escaping ([ChallengeCategory]) -> Void) {
         let query = Firestore.firestore().collection("challengeCategories")
             .order(by: "timestamp", descending: true)
