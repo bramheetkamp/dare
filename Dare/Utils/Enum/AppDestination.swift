@@ -101,6 +101,28 @@ enum AppDestination: Hashable, Identifiable, Codable {
         return nil
     }
 
+    /// Returns the shareable deep-link URL for this destination, or nil for destinations
+    /// that have no meaningful shareable link (e.g. transient navigation states).
+    var shareURL: URL? {
+        let base = "dare://"
+        switch self {
+        case .challengeDetail(let id):
+            return URL(string: "\(base)challenge?id=\(id)")
+        case .postDetail(let id), .locketPost(let id):
+            return URL(string: "\(base)post?id=\(id)")
+        case .comments(let id):
+            return URL(string: "\(base)comments?id=\(id)")
+        case .challengeCategory(let id):
+            return URL(string: "\(base)category?id=\(id)")
+        case .profile(let id):
+            return URL(string: "\(base)profile?id=\(id)")
+        case .groupDetail(let id):
+            return URL(string: "\(base)group?id=\(id)")
+        default:
+            return nil
+        }
+    }
+
     /// Route → (optional required query key, destination builder).
     private static let mappings: [String: (String?, (String) -> AppDestination)] = [
         "challenge": ("id", { .challengeDetail(challengeId: $0) }),

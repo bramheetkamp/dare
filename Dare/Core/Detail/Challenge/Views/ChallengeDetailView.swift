@@ -65,6 +65,16 @@ public struct ChallengeDetailView: View {
         }
         .onAppear(perform: loadInitialData)
         .ignoresSafeArea(edges: .bottom)
+        .toolbar {
+            if let url = AppDestination.challengeDetail(challengeId: challengeId).shareURL {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ShareLink(item: url) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundColor(Color("headerText"))
+                    }
+                }
+            }
+        }
         .withStandardPageStyle()
     }
     

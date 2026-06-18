@@ -92,6 +92,23 @@ struct PostRowButtonsView: View {
                 }
             }
             
+            // Share
+            if let url = AppDestination.postDetail(postId: postId).shareURL {
+                ShareLink(item: url) {
+                    VStack(spacing: 8) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(width: 36, height: 36)
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.body.weight(.semibold))
+                                .foregroundColor(Color("detailText"))
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+
             // See more
             InteractiveButtonStack(
                 action: {

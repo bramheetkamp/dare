@@ -70,4 +70,44 @@ struct DeepLinkTests {
         let url = try #require(URL(string: "dare://contactsFriends"))
         #expect(AppDestination.from(url: url) == .contactsFriends)
     }
+
+    // MARK: - shareURL round-trips
+
+    @Test func shareURLPostRoundTrips() throws {
+        let url = try #require(AppDestination.postDetail(postId: "p1").shareURL)
+        #expect(AppDestination.from(url: url) == .postDetail(postId: "p1"))
+    }
+
+    @Test func shareURLChallengeRoundTrips() throws {
+        let url = try #require(AppDestination.challengeDetail(challengeId: "c99").shareURL)
+        #expect(AppDestination.from(url: url) == .challengeDetail(challengeId: "c99"))
+    }
+
+    @Test func shareURLProfileRoundTrips() throws {
+        let url = try #require(AppDestination.profile(userId: "u42").shareURL)
+        #expect(AppDestination.from(url: url) == .profile(userId: "u42"))
+    }
+
+    @Test func shareURLGroupRoundTrips() throws {
+        let url = try #require(AppDestination.groupDetail(groupId: "g7").shareURL)
+        #expect(AppDestination.from(url: url) == .groupDetail(groupId: "g7"))
+    }
+
+    @Test func shareURLLocketPostResolvesToPostDestination() throws {
+        let url = try #require(AppDestination.locketPost(postId: "lp5").shareURL)
+        // locketPost shares via the post route, so it round-trips to postDetail
+        #expect(AppDestination.from(url: url) == .postDetail(postId: "lp5"))
+    }
+
+    @Test func shareURLHomeIsNil() {
+        #expect(AppDestination.home.shareURL == nil)
+    }
+
+    @Test func shareURLExploreIsNil() {
+        #expect(AppDestination.explore.shareURL == nil)
+    }
+
+    @Test func shareURLCreateChallengeIsNil() {
+        #expect(AppDestination.createChallenge.shareURL == nil)
+    }
 }

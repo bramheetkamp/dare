@@ -136,6 +136,21 @@ struct LocketPostView: View {
             HStack(spacing: 12) {
                 likeButton
                 Spacer()
+                if let url = AppDestination.locketPost(postId: postId).shareURL {
+                    ShareLink(item: url) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Share")
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(.white.opacity(0.15))
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
                 commentsButton
             }
         }

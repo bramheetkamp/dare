@@ -89,26 +89,7 @@ class AppRouter: ObservableObject {
     }
     
     func createDeepLink(for destination: AppDestination) -> URL? {
-        let scheme = "dare://"
-
-        switch destination {
-        case .challengeDetail(let challengeId):
-            return URL(string: "\(scheme)challenge?id=\(challengeId)")
-        case .postDetail(let postId):
-            return URL(string: "\(scheme)post?id=\(postId)")
-        case .comments(let postId):
-            return URL(string: "\(scheme)comments?id=\(postId)")
-        case .challengeCategory(let categoryId):
-            return URL(string: "\(scheme)category?id=\(categoryId)")
-        case .profile(let userId):
-            return URL(string: "\(scheme)profile?id=\(userId)")
-        case .groupDetail(let groupId):
-            return URL(string: "\(scheme)group?id=\(groupId)")
-        case .locketPost(let postId):
-            return URL(string: "\(scheme)post?id=\(postId)")
-        default:
-            return nil
-        }
+        destination.shareURL
     }
 }
 

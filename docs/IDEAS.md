@@ -189,7 +189,7 @@ Ring tags map to the product vision in `../CLAUDE.md`.
 - [x] 🟢 **Haptics on key moments** — streak increment, goal update posted, level up. Small, fun,
   retention-positive. `UIImpactFeedbackGenerator`. *(shipped: HapticsManager + wired into like tap, post success, streak increment, level up)*
 - [ ] 🟢 **Pull-to-refresh + skeleton loaders** on the feed for perceived speed.
-- [ ] 🟢 **Share sheet for a post/goal** using `AppRouter.createDeepLink(for:)` — growth loop.
+- [x] 🟢 **Share sheet for a post/goal** using `AppDestination.shareURL` — growth loop. *(shipped: shareURL on AppDestination, ShareLink in PostRowButtonsView + LocketPostView + ChallengeDetailView, round-trip tests in DeepLinkTests)*
 - [x] 🟢 **Mastery trophy case** — turn existing points/levels into a visual achievements grid on
   the profile (the gamification "trophy case" from the vision). Pure level/threshold math exists
   already in `Gamification.swift`; this is mostly view work + tests for any new thresholds.
