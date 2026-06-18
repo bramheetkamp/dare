@@ -8,13 +8,14 @@
 import Foundation
 
 final class UsersStore: ObservableObject {
-    
+
     @Published private(set) var users: [User] = []
     @Published var searchFriendsTerm: String = ""
     @Published var currentFriendsTerm: String = ""
-    
+
     private let friendService = FriendService()
-    
+    private let eviction = EvictionPolicy(maxSize: 500)
+
     func insertOrUpdate(_ newUsers: [User]) {
         for user in newUsers {
             if let index = users.firstIndex(where: { $0.id == user.id }) {
@@ -23,6 +24,7 @@ final class UsersStore: ObservableObject {
                 users.append(user)
             }
         }
+        users = eviction.apply(to: users)
     }
     
     func user(withId id: String) -> User? {

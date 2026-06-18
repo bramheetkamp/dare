@@ -206,5 +206,5 @@ Ring tags map to the product vision in `../CLAUDE.md`.
   with a sensible page limit. Add tests around the paging/cursor logic.
 - [ ] 🟡 **Fix `FriendService.fetchRecommendedFriends` O(n²)** over the follow graph — dedupe and
   cap fan-out. Extract the recommendation logic to a pure function + tests.
-- [ ] 🟢 **Store eviction/TTL** — add a simple max-size/age policy to the in-memory stores. Pure
-  policy logic → testable.
+- [x] 🟢 **Store eviction/TTL** — add a simple max-size/age policy to the in-memory stores. Pure
+  policy logic → testable. *(shipped: EvictionPolicy(maxSize:) + EvictionPolicyTests; PostsStore capped at 200, UsersStore at 500, ChallengesStore at 100)*

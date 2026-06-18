@@ -8,11 +8,12 @@
 import Foundation
 
 final class ChallengesStore: ObservableObject {
-    
+
     @Published private(set) var challenges: [Challenge] = []
-    
+
     private let challengeService = ChallengeService()
-    
+    private let eviction = EvictionPolicy(maxSize: 100)
+
     func insertOrUpdate(_ newChallenges: [Challenge]) {
         for challenge in newChallenges {
             if let index = challenges.firstIndex(where: { $0.id == challenge.id }) {
@@ -21,6 +22,7 @@ final class ChallengesStore: ObservableObject {
                 challenges.append(challenge)
             }
         }
+        challenges = eviction.apply(to: challenges)
     }
     
     func challenge(withId id: String) -> Challenge? {

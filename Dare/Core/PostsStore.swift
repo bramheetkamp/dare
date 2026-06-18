@@ -8,11 +8,12 @@
 import Foundation
 
 final class PostsStore: ObservableObject {
-    
+
     @Published private(set) var posts: [PublicPost] = []
-    
+
     private let postLikeService = PostLikeService()
-    
+    private let eviction = EvictionPolicy(maxSize: 200)
+
     func insertOrUpdate(_ newPosts: [PublicPost]) {
         for post in newPosts {
             if let index = posts.firstIndex(where: { $0.id == post.id }) {
@@ -21,6 +22,7 @@ final class PostsStore: ObservableObject {
                 posts.append(post)
             }
         }
+        posts = eviction.apply(to: posts)
     }
     
     func post(withId id: String) -> PublicPost? {
