@@ -125,18 +125,26 @@ class AuthViewModel: ObservableObject {
     /// refreshes the cached user so the UI reflects the change.
     func recordDailyActivity() {
         guard let uid = currentUser?.id else { return }
-        gamificationService.recordDailyActivity(uid: uid) { [weak self] _ in
+        let previousStreak = currentUser?.streak ?? 0
+        gamificationService.recordDailyActivity(uid: uid) { [weak self] newStreak in
+            if newStreak > previousStreak {
+                DispatchQueue.main.async { HapticsManager.success() }
+            }
             self?.refreshCurrentUser()
         }
     }
 
     /// Re-fetches the signed-in user's document and republishes it.
     func refreshCurrentUser() {
+        let oldLevel = currentUser?.level ?? 0
         guard let uid = currentUser?.id else { return }
         service.fetchUser(withUid: uid) { [weak self] appUser in
             guard let appUser else { return }
             DispatchQueue.main.async {
                 self?.authState = .authenticated(appUser)
+                if appUser.level > oldLevel {
+                    HapticsManager.heavyTap()
+                }
             }
         }
     }

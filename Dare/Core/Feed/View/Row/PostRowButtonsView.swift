@@ -126,11 +126,13 @@ struct PostRowButtonsView: View {
     
     private func handleLike() {
         guard !isLikeAnimating, (post?.didLike ?? false) == false else { return }
-        
+
+        HapticsManager.tap()
+
         withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
             isLikeAnimating = true
         }
-        
+
         postsStore.likePost(postId: postId) {
             DispatchQueue.main.async {
                 isLikeAnimating = false

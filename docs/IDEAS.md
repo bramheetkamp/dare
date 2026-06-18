@@ -186,8 +186,8 @@ Ring tags map to the product vision in `../CLAUDE.md`.
   *(shipped: AYearAgoCard + AYearAgoViewModel wired into TodayView, PostFetchService.fetchPosts(uid:from:to:))*
 - [ ] 🟢 **Empty-state & loading polish** — friendly empty states for an empty feed / no goals yet
   / no followers, nudging the first action. Pure view work.
-- [ ] 🟢 **Haptics on key moments** — streak increment, goal update posted, level up. Small, fun,
-  retention-positive. `UIImpactFeedbackGenerator`.
+- [x] 🟢 **Haptics on key moments** — streak increment, goal update posted, level up. Small, fun,
+  retention-positive. `UIImpactFeedbackGenerator`. *(shipped: HapticsManager + wired into like tap, post success, streak increment, level up)*
 - [ ] 🟢 **Pull-to-refresh + skeleton loaders** on the feed for perceived speed.
 - [ ] 🟢 **Share sheet for a post/goal** using `AppRouter.createDeepLink(for:)` — growth loop.
 - [x] 🟢 **Mastery trophy case** — turn existing points/levels into a visual achievements grid on

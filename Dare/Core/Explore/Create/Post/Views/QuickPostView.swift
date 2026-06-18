@@ -161,7 +161,11 @@ struct QuickPostView: View {
             date: nil
         ) { createdPost in
             isUploading = false
-            guard let createdPost = createdPost else { return }
+            guard let createdPost = createdPost else {
+                HapticsManager.error()
+                return
+            }
+            HapticsManager.success()
             postsStore.insertOrUpdate([createdPost])
             router.navigateBack()
         }
