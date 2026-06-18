@@ -130,6 +130,88 @@ extension StreakCalculator {
     }
 }
 
+// MARK: - Weekly streak (goal-update driven)
+//
+// The product vision: "the streak counts weekly goal-updates, not daily opens."
+// These are pure helpers — no Firebase imports.
+
+extension StreakCalculator {
+
+    // Start of the ISO week (Monday) that contains `date`.
+    private static func weekStart(for date: Date, calendar: Calendar) -> Date {
+        let comps = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
+        return calendar.date(from: comps) ?? date
+    }
+
+    /// Number of full ISO weeks between `from` and `to` (negative if `to` is before `from`).
+    static func weeksBetween(from: Date, to: Date, calendar: Calendar = .current) -> Int {
+        let f = weekStart(for: from, calendar: calendar)
+        let t = weekStart(for: to, calendar: calendar)
+        return calendar.dateComponents([.weekOfYear], from: f, to: t).weekOfYear ?? 0
+    }
+
+    /// `true` when `now` falls in a different ISO week than `lastGoalUpdate`.
+    static func isNewWeek(
+        lastGoalUpdate: Date?,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> Bool {
+        guard let last = lastGoalUpdate else { return true }
+        return weeksBetween(from: last, to: now, calendar: calendar) != 0
+    }
+
+    /// Weekly streak value after a goal update at `now`.
+    /// - same ISO week  → unchanged (already counted)
+    /// - next ISO week  → previous + 1
+    /// - gap ≥ 2 weeks  → reset to 1
+    /// - clock skew     → preserve, don't punish
+    static func updatedWeeklyStreak(
+        previousStreak: Int,
+        lastGoalUpdate: Date?,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> Int {
+        guard let last = lastGoalUpdate else { return 1 }
+        let gap = weeksBetween(from: last, to: now, calendar: calendar)
+        switch gap {
+        case ..<0: return max(previousStreak, 1)
+        case 0:    return max(previousStreak, 1)
+        case 1:    return previousStreak + 1
+        default:   return 1
+        }
+    }
+
+    /// Freeze-aware weekly streak update. A freeze bridges exactly one missed week.
+    static func updatedWeeklyStreakApplyingFreeze(
+        previousStreak: Int,
+        lastGoalUpdate: Date?,
+        now: Date = Date(),
+        calendar: Calendar = .current,
+        freezesAvailable: Int
+    ) -> StreakUpdateResult {
+        guard let last = lastGoalUpdate else {
+            return StreakUpdateResult(newStreak: 1, freezeConsumed: false)
+        }
+        let gap = weeksBetween(from: last, to: now, calendar: calendar)
+        switch gap {
+        case ..<0, 0:
+            return StreakUpdateResult(newStreak: max(previousStreak, 1), freezeConsumed: false)
+        case 1:
+            return StreakUpdateResult(newStreak: previousStreak + 1, freezeConsumed: false)
+        default:
+            if freezesAvailable > 0 {
+                return StreakUpdateResult(newStreak: max(previousStreak, 1), freezeConsumed: true)
+            }
+            return StreakUpdateResult(newStreak: 1, freezeConsumed: false)
+        }
+    }
+
+    /// A freeze token is earned at 4-week and every 12-week milestone.
+    static func earnsWeeklyFreeze(newStreak: Int) -> Bool {
+        newStreak == 4 || (newStreak > 0 && newStreak % 12 == 0)
+    }
+}
+
 // MARK: - Point events
 
 /// Point rewards for in-app actions. Raw values are the points granted.
@@ -139,6 +221,8 @@ enum PointEvent: Int {
     case createPost = 25
     case completeChallenge = 30
     case createChallenge = 40
+    /// Posting a goal update in a new week — the core streak-driving action.
+    case weeklyGoalPost = 50
 }
 
 // MARK: - Achievements
@@ -165,16 +249,16 @@ enum AchievementCatalog {
     }
 
     private static let templates: [Template] = [
-        Template(id: "streak_3",    title: "Hat-trick",      description: "Reach a 3-day streak",   icon: "flame.fill",               unlock: { _, s in s >= 3 }),
-        Template(id: "points_50",   title: "Getting Started", description: "Earn 50 points",         icon: "star.fill",                unlock: { p, _ in p >= 50 }),
-        Template(id: "streak_7",    title: "On Fire",         description: "Reach a 7-day streak",   icon: "flame.circle.fill",        unlock: { _, s in s >= 7 }),
-        Template(id: "points_100",  title: "Centurion",       description: "Earn 100 points",        icon: "100.circle.fill",          unlock: { p, _ in p >= 100 }),
-        Template(id: "level_2",     title: "Level Up",        description: "Reach level 2",          icon: "arrow.up.circle.fill",     unlock: { p, _ in GamificationLevel.level(for: p) >= 2 }),
-        Template(id: "streak_30",   title: "Consistent",      description: "Reach a 30-day streak",  icon: "calendar.badge.checkmark", unlock: { _, s in s >= 30 }),
-        Template(id: "points_300",  title: "Dedicated",       description: "Earn 300 points",        icon: "chart.bar.fill",           unlock: { p, _ in p >= 300 }),
-        Template(id: "points_500",  title: "High Scorer",     description: "Earn 500 points",        icon: "trophy.fill",              unlock: { p, _ in p >= 500 }),
-        Template(id: "streak_100",  title: "Legendary",       description: "Reach a 100-day streak", icon: "crown.fill",               unlock: { _, s in s >= 100 }),
-        Template(id: "points_1000", title: "Grand Master",    description: "Earn 1000 points",       icon: "medal.fill",               unlock: { p, _ in p >= 1000 }),
+        Template(id: "streak_3",    title: "Hat-trick",      description: "Keep a 3-week goal streak",   icon: "flame.fill",               unlock: { _, s in s >= 3 }),
+        Template(id: "points_50",   title: "Getting Started", description: "Earn 50 points",              icon: "star.fill",                unlock: { p, _ in p >= 50 }),
+        Template(id: "streak_7",    title: "On Fire",         description: "Keep a 7-week goal streak",   icon: "flame.circle.fill",        unlock: { _, s in s >= 7 }),
+        Template(id: "points_100",  title: "Centurion",       description: "Earn 100 points",             icon: "100.circle.fill",          unlock: { p, _ in p >= 100 }),
+        Template(id: "level_2",     title: "Level Up",        description: "Reach level 2",               icon: "arrow.up.circle.fill",     unlock: { p, _ in GamificationLevel.level(for: p) >= 2 }),
+        Template(id: "streak_30",   title: "Consistent",      description: "Keep a 30-week goal streak",  icon: "calendar.badge.checkmark", unlock: { _, s in s >= 30 }),
+        Template(id: "points_300",  title: "Dedicated",       description: "Earn 300 points",             icon: "chart.bar.fill",           unlock: { p, _ in p >= 300 }),
+        Template(id: "points_500",  title: "High Scorer",     description: "Earn 500 points",             icon: "trophy.fill",              unlock: { p, _ in p >= 500 }),
+        Template(id: "streak_100",  title: "Legendary",       description: "Keep a 100-week goal streak", icon: "crown.fill",               unlock: { _, s in s >= 100 }),
+        Template(id: "points_1000", title: "Grand Master",    description: "Earn 1000 points",            icon: "medal.fill",               unlock: { p, _ in p >= 1000 }),
     ]
 
     /// All achievements with their unlock state for the given profile.

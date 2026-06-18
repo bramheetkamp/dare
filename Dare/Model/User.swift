@@ -33,6 +33,9 @@ struct User: Identifiable, Decodable, Equatable, Hashable {
     var currentStreak: Int?
     var longestStreak: Int?
     var lastActiveAt: Timestamp?
+    /// Timestamp of the last goal-update post. The streak advances once per ISO week when a
+    /// goal update is posted — not on daily app opens.
+    var lastGoalUpdateAt: Timestamp?
     /// Earned freeze tokens. A freeze protects the streak when the user misses one period.
     var streakFreezeCount: Int?
 
@@ -55,4 +58,5 @@ extension User {
     var bestStreak: Int { longestStreak ?? 0 }
     var level: Int { GamificationLevel.level(for: totalPoints) }
     var freezeCount: Int { streakFreezeCount ?? 0 }
+    var lastGoalUpdate: Date? { lastGoalUpdateAt?.dateValue() }
 }

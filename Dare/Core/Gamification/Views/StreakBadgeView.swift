@@ -43,7 +43,7 @@ struct StreakBadgeView: View {
     }
 
     private var accessibilityDescription: String {
-        var parts = ["\(streak) day streak", "\(points) points"]
+        var parts = ["\(streak) week streak", "\(points) points"]
         if freezeCount > 0 {
             parts.insert("\(freezeCount) streak freeze\(freezeCount == 1 ? "" : "s")", at: 1)
         }

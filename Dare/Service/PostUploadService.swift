@@ -16,6 +16,7 @@ struct PostUploadService {
     private let auth = Auth.auth()
     private let postService = PostService()
     private let db = Firestore.firestore()
+    private let gamificationService = GamificationService()
 
     private func postImagesRef(filename: String) -> StorageReference {
         return storage.reference().child("post_images/\(filename)")
@@ -77,6 +78,12 @@ struct PostUploadService {
                 }
                 do {
                     let post = try snapshot.data(as: PublicPost.self)
+                    if let uid = self.auth.currentUser?.uid {
+                        // Base points for every post.
+                        self.gamificationService.awardPoints(uid: uid, for: .createPost)
+                        // Weekly streak advance + bonus points (no-op if same week).
+                        self.gamificationService.recordWeeklyGoalActivity(uid: uid)
+                    }
                     completion(post)
                 } catch {
                     print("Failed to decode new post: \(error.localizedDescription)")
