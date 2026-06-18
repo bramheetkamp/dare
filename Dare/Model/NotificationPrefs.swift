@@ -10,7 +10,7 @@
 
 import Foundation
 
-struct NotificationPrefs: Codable, Equatable {
+struct NotificationPrefs: Codable, Equatable, Hashable {
 
     /// Whether the user wants the weekly goal-update nudge (Sunday 10 am).
     /// Defaults to `true` for new and pre-existing users who haven't touched the setting.
