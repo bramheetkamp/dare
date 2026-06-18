@@ -11,6 +11,7 @@ import Kingfisher
 enum ProfileFilter: String, CaseIterable {
     case posts = "Posts"
     case challenges = "Challenges"
+    case trophies = "Trophies"
 }
 
 public struct ProfileDetailView: View {
@@ -53,7 +54,7 @@ public struct ProfileDetailView: View {
                                 onPostAppear: loadMorePostsIfNeeded
                             )
                         }
-                        
+
                         if viewModel.isLoadingPosts {
                             LoadingIndicatorView()
                         }
@@ -68,10 +69,15 @@ public struct ProfileDetailView: View {
                                 onChallengeAppear: loadMoreChallengesIfNeeded
                             )
                         }
-                        
+
                         if viewModel.isLoadingChallenges {
                             LoadingIndicatorView()
                         }
+                    } else if selectedFilter == .trophies {
+                        MasteryTrophyCaseView(
+                            points: viewModel.user?.totalPoints ?? 0,
+                            longestStreak: viewModel.user?.bestStreak ?? 0
+                        )
                     }
                 }
                 .padding(.horizontal, 16)

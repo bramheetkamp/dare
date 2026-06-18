@@ -190,9 +190,10 @@ Ring tags map to the product vision in `../CLAUDE.md`.
   retention-positive. `UIImpactFeedbackGenerator`.
 - [ ] 🟢 **Pull-to-refresh + skeleton loaders** on the feed for perceived speed.
 - [ ] 🟢 **Share sheet for a post/goal** using `AppRouter.createDeepLink(for:)` — growth loop.
-- [ ] 🟢 **Mastery trophy case** — turn existing points/levels into a visual achievements grid on
+- [x] 🟢 **Mastery trophy case** — turn existing points/levels into a visual achievements grid on
   the profile (the gamification "trophy case" from the vision). Pure level/threshold math exists
   already in `Gamification.swift`; this is mostly view work + tests for any new thresholds.
+  *(shipped: AchievementCatalog enum + Achievement struct in Gamification.swift, MasteryTrophyCaseView, Trophies tab in ProfileDetailView, AchievementCatalogTests)*
 - [ ] 🟢 **Dark-mode / appearance polish** — there's already a new `AppearanceMode.swift` in the
   tree; finish wiring it through `Style.swift` and settings, add tests for the mode resolution.
 - [ ] 🟢 **Retire `Feed 2` / `TestFeed`** — listed tech debt; remove the prototype or fold its best

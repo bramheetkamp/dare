@@ -140,3 +140,56 @@ enum PointEvent: Int {
     case completeChallenge = 30
     case createChallenge = 40
 }
+
+// MARK: - Achievements
+
+/// A single achievement with its unlock state.
+struct Achievement: Equatable {
+    let id: String
+    let title: String
+    let description: String
+    let icon: String        // SF Symbol name
+    let isUnlocked: Bool
+}
+
+/// Static catalogue of achievements. Unlock evaluation is purely a function of
+/// `points` and `longestStreak` — no Firebase dependency.
+enum AchievementCatalog {
+
+    private struct Template {
+        let id: String
+        let title: String
+        let description: String
+        let icon: String
+        let unlock: (Int, Int) -> Bool   // (points, longestStreak) -> Bool
+    }
+
+    private static let templates: [Template] = [
+        Template(id: "streak_3",    title: "Hat-trick",      description: "Reach a 3-day streak",   icon: "flame.fill",               unlock: { _, s in s >= 3 }),
+        Template(id: "points_50",   title: "Getting Started", description: "Earn 50 points",         icon: "star.fill",                unlock: { p, _ in p >= 50 }),
+        Template(id: "streak_7",    title: "On Fire",         description: "Reach a 7-day streak",   icon: "flame.circle.fill",        unlock: { _, s in s >= 7 }),
+        Template(id: "points_100",  title: "Centurion",       description: "Earn 100 points",        icon: "100.circle.fill",          unlock: { p, _ in p >= 100 }),
+        Template(id: "level_2",     title: "Level Up",        description: "Reach level 2",          icon: "arrow.up.circle.fill",     unlock: { p, _ in GamificationLevel.level(for: p) >= 2 }),
+        Template(id: "streak_30",   title: "Consistent",      description: "Reach a 30-day streak",  icon: "calendar.badge.checkmark", unlock: { _, s in s >= 30 }),
+        Template(id: "points_300",  title: "Dedicated",       description: "Earn 300 points",        icon: "chart.bar.fill",           unlock: { p, _ in p >= 300 }),
+        Template(id: "points_500",  title: "High Scorer",     description: "Earn 500 points",        icon: "trophy.fill",              unlock: { p, _ in p >= 500 }),
+        Template(id: "streak_100",  title: "Legendary",       description: "Reach a 100-day streak", icon: "crown.fill",               unlock: { _, s in s >= 100 }),
+        Template(id: "points_1000", title: "Grand Master",    description: "Earn 1000 points",       icon: "medal.fill",               unlock: { p, _ in p >= 1000 }),
+    ]
+
+    /// All achievements with their unlock state for the given profile.
+    static func achievements(points: Int, longestStreak: Int) -> [Achievement] {
+        templates.map { t in
+            Achievement(id: t.id, title: t.title, description: t.description,
+                        icon: t.icon, isUnlocked: t.unlock(points, longestStreak))
+        }
+    }
+
+    /// Number of unlocked achievements.
+    static func unlockedCount(points: Int, longestStreak: Int) -> Int {
+        templates.filter { $0.unlock(points, longestStreak) }.count
+    }
+
+    /// Total number of achievements in the catalogue.
+    static var totalCount: Int { templates.count }
+}
